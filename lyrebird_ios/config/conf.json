@@ -1,0 +1,9 @@
+{
+  "app_info": {
+    "CFBundleName": "AppName",
+    "CFBundleIdentifier": "BundleID",
+    "CFBundleShortVersionString": "VersionNumber",
+    "CFBundleVersion": "BuildNumber"
+  },
+  "default_app": ""
+}

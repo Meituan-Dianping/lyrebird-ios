@@ -1,0 +1,315 @@
+ <div id="app">
+    <div class="row">
+        <div class="col-md-3">
+            <div v-if="screenShotUrl">
+                <img :src="screenShotUrl" style="width:100%; height: auto;" />
+            </div>
+            <div v-else>
+                <img src="/ui/plugin/iOS/static/images/iPhone_default.png" style="width:100%; height: auto;" />
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div v-if="currentDevice" class="span15 col-md-20 columns twelve large-15">
+                        <div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#tab_device_info" data-toggle="tab">Device info</a></li>
+                                <li><a href="#tab_app_info" data-toggle="tab">Application management</a></li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <!--tab_device_info-->
+                                <div class="tab-pane active" id="tab_device_info">
+                                    <div id="device-info">
+                                            <div>
+                                                <table class="table table-responsive">
+                                                    <tr>
+                                                        <td>
+                                                            <label>Device Name</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.device_name}}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label>Model</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.model}}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label>OS Version</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.os_version}}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label>Phone Number</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.phone_number}}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label>SN</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.sn}}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label>UniqueDeviceID</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.device_id}}</span>
+                                                        </td>
+                                                    </tr>
+                                            </table>
+
+                                            <button class="btn btn-primary" data-toggle="modal"
+                                                    data-target="#device-detail-modal">More details</button>
+                                            <button class="btn btn-primary" v-on:click="takeScreenShot" :disabled="isTakingScreen">Take screenshot</button>
+                                            <br><p><b><font color="#FF0000" v-html="user_msg"></font></b></p>
+                                            <hr style="height: 1px">
+
+                                            </div>
+                                    </div>
+                                </div>
+                                <!--tab_app_info-->
+                                <div class="tab-pane" id="tab_app_info">
+                                    <div id="apps-info" style="height: 600px">
+                                        <div id="app-select">
+                                            <h3>Bundle ID or APP Name</h3>
+                                            <v-select 
+                                                ref="select"
+                                                label="label" 
+                                                :options="options" 
+                                                :value="defaultApp"
+                                                @search:focus="maybeLoad"
+                                                @input="showAppInfo"
+                                                ><template slot="no-options">
+                                                Type to search bundle id or app name...
+                                                </template>
+                                            </v-select>
+                                        </div>
+                                        <hr>
+                                        <vue-simple-spinner size=45 message="Loading..." v-show="loading">
+                                        </vue-simple-spinner>
+                                        <br>
+                                        <div id="app-content">
+                                            <table class="table table-responsive">
+                                                <tr v-for="(value, key) in appInfo" :key="appInfo.BundleID">
+                                                    <td>
+                                                        <label>{{ key }}</label>
+                                                    </td>
+                                                    <td>
+                                                        <span>{{ value }}</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div><!-- /.tab-pane -->
+                                </div><!-- /.tab-content -->
+                            </div><!-- /.tab-pane -->
+                        </div>
+                    </div>
+
+
+                    <div v-else>
+                        <div class="box-box" v-if="Object.keys(devices).length>0">
+                            <h1>Device found.</h1><br>
+                            <h4>🚀 The easiest way to manage your iOS devices.</h4>
+                            <hr style="height: 3px">
+                            <p v-for="(device, id) in devices">
+                                <i class="fa fa-fw fa-apple"></i><button type="button" class="btn bg-navy btn-flat margin" v-on:click="showDeviceInfo(id)"> {{ device.device_name }} </button>
+                            </p>
+                        </div>
+                        <div v-else>
+                            <h1>No device found, is it plugged in?</h1><br>
+                            <h4>🚀 The easiest way to manage your iOS devices. </h4>
+                            <hr style="height: 3px">
+                            <div v-show="showError">
+                                <h3>If the device is already connected 👇</h3>
+                                <font color="#FF0000"><b>&#x26A1; {{ userMsg }}</b></font>
+                                <br><br>
+                                <h4><b>External dependencies</b></h4>
+                                <span style="color: #FF0000; "><b>This plugin currently depends on libimobiledevice to do certain things. Install it with Homebrew. </b></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+     <!-- Detail MODAL -->
+    <div class="modal fade" id="device-detail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><i class="fa fa-edit"></i>Detail</h4>
+                </div>
+                <div class="modal-body">
+                    <div v-if="currentDeviceDetail">
+                        <pre>{{currentDeviceDetail}}</pre>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</div>
+
+<script src="/ui/plugin/iOS/static/vue.js"></script>
+<script src="/ui/plugin/iOS/static/vue-resource.js"></script>
+<script src="https://unpkg.com/vue-select@latest"></script>
+<script src="/ui/plugin/iOS/static/vue-simple-spinner.js"></script>
+
+<script>
+Vue.component("v-select", VueSelect.VueSelect);
+
+var sio = io('/iOS-plugin');
+var apiUrl = '/ui/plugin/iOS/api';
+
+new Vue({
+    el: '#app',
+    data: {
+        options: [],
+        showError: false,
+        userMsg: "",
+        loading: false,
+        status: false,
+        isStop: false,
+        starting: false,
+        defaultApp: "com.meituan.imeituan-beta",
+        spinnerStatus: false,
+        appInfo: {},
+        devices: {},
+        currentDevice: null,
+        currentDeviceDetail: null,
+        logs: [],
+        screenShotUrl: null,
+        isTakingScreen: false,
+        user_msg: null
+        },
+        created: function () {
+            this.getDevices();
+            this.get_default_app();
+            this.get_ready();
+
+            var getDevices = this.getDevices;
+            sio.on('device', function (data) {
+                console.log('Update device list');
+                getDevices();
+            });
+        },
+        methods: {
+            scrollDownResult() {
+                var container = this.$el.querySelector("#resultBox");
+                container.scrollTop = container.scrollHeight;
+            },
+            get_ready() {
+                fetch(apiUrl + '/check-env')
+                    .then(res => res.json())
+                    .then(json => {
+                        console.log('Got response: ' + json);
+                        this.showError = json.show_error;
+                        this.userMsg = json.user_message;
+                        this.loading = false
+                    })
+                    .catch(err => console.warn(err));
+            },
+            get_default_app() {
+                fetch(apiUrl + '/conf')
+                    .then(res => res.json())
+                    .then(json => {
+                        console.log('Got response: ' + json);
+                        this.defaultApp = json.default_app;
+                        this.loading = false
+                    })
+                    .catch(err => console.warn(err));
+            },
+            maybeLoad() {
+                return Object.keys(this.options).length <= 0 ? this.load() : null
+            },
+            load() {
+              this.loading = true
+              fetch(apiUrl + '/apps/' + this.currentDevice.device_id)
+                .then(res => res.json())
+                .then(json => {
+                  console.log('Got response: ' + json);
+                  this.options = json;
+                  this.loading = false
+                })
+                .catch(err => console.warn(err));
+            },
+            showAppInfo(val) {
+                this.loading = true
+                if (typeof val == "string") {
+                    bundle_id = val
+                } else {
+                    bundle_id = val.bundle_id
+                }
+                fetch(apiUrl + '/apps/' + this.currentDevice.device_id + '/' + bundle_id)
+                    .then(res => res.json())
+                    .then(json => {
+                        console.log('Got response: ' + json);
+                        this.appInfo = json;
+                        this.loading = false
+                    })
+                    .catch(err => console.warn(err));
+            },
+            getDevices: function () {
+                this.$http.get(apiUrl + '/devices').then(function (response) {
+                    console.info("api/device got response", response.data);
+                    this.devices = response.data;
+                });
+            },
+            getDeviceDetail: function () {
+                console.log('get device detail');
+                this.$http.get(apiUrl + '/device/' + this.currentDevice.device_id)
+                    .then(function (response) {
+                        this.currentDeviceDetail = response.data;
+                        console.log(response.data)
+                    });
+                if (this.packageName){
+                    this.getAppInfo();
+                }
+            },
+            takeScreenShot: function () {
+                this.isTakingScreen = true;
+                this.$http.get(apiUrl + '/screenshot/'+this.currentDevice.device_id)
+                    .then(function (response) {
+                        this.isTakingScreen = false;
+                        if (response.data.code === 3000) {
+                            this.user_msg = response.data.message
+                        } else {
+                            this.screenShotUrl = response.data.imgUrl;
+                            this.user_msg = null
+                        }
+                    });
+            },
+            showDeviceInfo: function (device_id) {
+                console.info('vue show device info ', device_id);
+                if (this.currentDevice !== this.devices[device_id]) {
+                    this.logs = [];
+                    this.currentDevice = this.devices[device_id];
+//                    sio.emit('log-start', this.currentDevice.device_id)
+                }
+                this.getDeviceDetail();
+//                this.takeScreenShot();
+            },
+        }
+    })
+</script>
