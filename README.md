@@ -1,3 +1,7 @@
+----
+注意：本项目已开源，内部项目停止更新。请前往https://github.com/meituan/lyrebird
+----
+
 # Lyrebird iOS Plugin
 
 Lyrebird 是一个基于拦截以及模拟 HTTP/HTTPs 网络请求的面向移动应用的插件化测试平台。iOS Plugin 是其插件之一，您可以在插件中快速查看已连接设备的详细设备信息，截取屏幕快照，以及查看已连接设备的应用信息。
