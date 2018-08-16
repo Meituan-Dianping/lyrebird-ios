@@ -97,7 +97,7 @@ class MyUI(lyrebird.PluginView):
                                               'Please make sure the idevicescreenshot command works correctly')
 
     def get_screenshot_image(self, device_id):
-        return send_from_directory(tmp_dir, '%s.png' % device_service.devices.get(device_id).device_name.replace(' ', '_'))
+        return send_from_directory(tmp_dir, '%s.png' % device_service.devices.get(device_id).model.replace(' ', '_'))
 
     def make_dump_data(self, path):
         device_data = {}
