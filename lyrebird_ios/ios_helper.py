@@ -299,7 +299,7 @@ class Device:
             self._log_process = None
 
     def take_screen_shot(self):
-        file_name = self.device_name.replace(' ', '_')
+        file_name = self.model.replace(' ', '_')
         p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {tmp_dir}/{file_name}.png', shell=True)
         if p.returncode == 0:
             return os.path.abspath(os.path.join(tmp_dir, '%s.png' % file_name))
