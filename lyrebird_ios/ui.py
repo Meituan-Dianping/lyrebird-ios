@@ -8,12 +8,12 @@ import time
 import os
 import socket
 import json
-from lyrebird.mock import logger_helper
+from lyrebird.log import get_logger
 from pathlib import Path
 import traceback
 from .device_service import DeviceService
 
-_log = logger_helper.get_logger()
+_log = get_logger()
 
 device_service = DeviceService()
 storage = lyrebird.get_plugin_storage()

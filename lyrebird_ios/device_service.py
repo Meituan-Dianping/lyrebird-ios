@@ -1,6 +1,6 @@
 from lyrebird import context
 from . import ios_helper
-from lyrebird.mock.logger_helper import get_logger
+from lyrebird.log import get_logger
 
 _log = get_logger()
 
