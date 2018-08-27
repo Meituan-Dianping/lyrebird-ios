@@ -8,7 +8,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lyrebird-ios',
-    version='0.1.7',
+    version='0.1.8',
     packages=['lyrebird_ios'],
     url='https://github.com/meituan/lyrebird-ios',
     author='HBQA',
