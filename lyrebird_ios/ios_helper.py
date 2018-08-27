@@ -2,10 +2,10 @@ import os, plistlib, subprocess, threading, codecs, json, time
 from pathlib import Path
 import lyrebird
 from lyrebird import context
-from lyrebird.mock import logger_helper
+from lyrebird.log import get_logger
 from .helper import config
 
-_log = logger_helper.get_logger()
+_log = get_logger()
 
 ideviceinstaller = None
 idevice_id = None
