@@ -110,7 +110,7 @@ class MyUI(lyrebird.PluginView):
                     }
                 }
             )
-        lyrebird.publish('ios.screenshot', screen_shots)
+        lyrebird.publish('ios.screenshot', screen_shots, state=True)
 
     def get_screenshot_image(self, device_id):
         return send_from_directory(tmp_dir, '%s.png' % device_service.devices.get(device_id).model.replace(' ', '_'))
