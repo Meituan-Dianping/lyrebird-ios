@@ -1,5 +1,7 @@
+import lyrebird
 from lyrebird import context
 from . import ios_helper
+from .helper import config
 from lyrebird.log import get_logger
 
 _log = get_logger()
@@ -44,6 +46,7 @@ class DeviceService:
                 return
 
         self.devices = devices
+        self.publish_devices_info_event(self.devices)
         context.application.socket_io.emit('device', namespace='/iOS-plugin')
 
     def start_log_recorder(self, device_id):
@@ -52,3 +55,35 @@ class DeviceService:
                 self.devices[_device_id].start_log()
             else:
                 self.devices[_device_id].stop_log()
+
+    def publish_devices_info_event(self, online_devices):
+        devices = []
+        for item in online_devices:
+            info = online_devices[item]
+            app = online_devices[item].get_app_info(self.get_default_app_name())
+            devices.append(
+                {
+                    'id': info.device_id,
+                    'info': {
+                        'name': info.device_name,
+                        'model': info.model,
+                        'os': info.os_version,
+                        'sn': info.sn
+                    },
+                    'app': {
+                        'name': app['AppName'],
+                        'version': app['VersionNumber'],
+                        'build': app['BuildNumber'],
+                        'bundleID': app['BundleID']
+                    }
+                }
+            )
+        lyrebird.publish('ios.device', devices, state=True)
+
+    @staticmethod
+    def get_default_app_name():
+        conf = config.load()
+        if hasattr(conf, 'default_app'):
+            return conf.default_app
+        else:
+            return ''

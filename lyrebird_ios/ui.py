@@ -96,6 +96,22 @@ class MyUI(lyrebird.PluginView):
             return context.make_fail_response('Could not start screenshot service! '
                                               'Please make sure the idevicescreenshot command works correctly')
 
+    def get_screen_shot(self):
+        screen_shots = []
+        for item in device_service.devices:
+            device = device_service.devices[item]
+            self.take_screen_shot(item)
+            screen_shots.append(
+                {
+                    'id': item,
+                    'screenshot': {
+                        'name': device.model.replace(' ', '_'),
+                        'path': self.get_screenshot_image(item)
+                    }
+                }
+            )
+        lyrebird.publish('ios.screenshot', screen_shots, state=True)
+
     def get_screenshot_image(self, device_id):
         return send_from_directory(tmp_dir, '%s.png' % device_service.devices.get(device_id).model.replace(' ', '_'))
 
@@ -256,6 +272,8 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/check-env', view_func=self.check_env)
         # 启动设备监听服务
         lyrebird.start_background_task(device_service.run)
+        # 订阅 cmd 消息，并开始截图
+        lyrebird.subscribe('ios.cmd', self.get_screen_shot())
 
     @staticmethod
     def get_icon():

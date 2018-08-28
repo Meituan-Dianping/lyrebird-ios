@@ -11,3 +11,19 @@ jobs:
         - pip install .
       # command to run tests
       script: pytest
+
+    - stage: release to pypi
+      if: type = push
+      language: python
+      catch: pip
+      python:
+      - "3.6"
+      script:
+      - echo "Skipping tests"
+      deploy:
+        provider: pypi
+        user: YurRee
+        password:
+          secure: "a2Hxhdd0RWS6VrFt9dXTb5cD/FdNTlfpE4qUsCIP8WmJG5T98KAFiwRLYbrdoqmqRFCQEBM7WOiI/A2wZasuwSKV3LViDauhT7zMpZdrULd0HLlAIR1HQmPiU7oUV78P0WsNrdXW2sonjoKYq8kbbV6k86dqR9Y3lrcXuwDc783KIGezblHvI9kd+6vl83XWY8xyknBtnoy5qgRFe3JtcCZ58ljeLxfv2wqzbKxUo1mwB+haqBhd4aD9tG/Nvx1TjMxC2WpGwgtOd+SJN6M3cOR9cYO3lIsn0dF+TAzt2XUY87J+pPhilj++H9fyjRPlVYXsGvkqKc8zS3JRB8jay5IRwzoEO75a3dLMailFFpM44AjphmuTysShaekh6ogmPaNXCSaY7lpVGw3xbsQ7ZSd1olGQpTO1ov1X0/qAHYjnSjIv/1NWvNM/Fwz9J6E3nlUF3uBKiWGPeGzQqRvvCW1JG7eoocOXixriqsmTKiOfjnT39LmZtXWpb3/3ptycv1mniZm2D52Eotfznf3EnFZSkr2i7sXIwurdQjnErc3RkRPQnUPjulGKKfWSf+KZ/603do2G7QKhGwntVwS6y/9ddwo+7306OVHVhnaKP+Qk089W5RqUOZwLidx0q4qgFRZfyFGshxalJIjHGX1Vude1+zSMFaDtwZah6jpBEZY="
+        on:
+          tags: true
