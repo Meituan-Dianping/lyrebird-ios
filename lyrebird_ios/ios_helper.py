@@ -21,8 +21,7 @@ storage = lyrebird.get_plugin_storage()
 tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 crash_dir = os.path.abspath(os.path.join(storage, 'crash'))
 
-PLUGIN_ROOT_PATH = Path('~', '.lyrebird/plugins/lyrebird_ios').expanduser()
-PLIST_PATH = os.path.join(PLUGIN_ROOT_PATH, 'plist')
+PLIST_PATH = os.path.join(storage, 'plist')
 error_msg = None
 
 if not os.path.exists(tmp_dir):
