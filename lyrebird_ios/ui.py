@@ -30,8 +30,7 @@ class MyUI(lyrebird.PluginView):
         """
         return codecs.open(self.get_package_file_path('templates/index.html'), 'r', 'utf-8').read()
 
-    @staticmethod
-    def info():
+    def info(self):
         """
         获取设备信息
         :return:
@@ -81,8 +80,8 @@ class MyUI(lyrebird.PluginView):
         else:
             return context.make_fail_response('Could not start screenshot service! '
                                               'Please make sure the idevicescreenshot command works correctly')
-    @staticmethod
-    def get_screen_shot(msg):
+
+    def get_screen_shot(self, msg):
         screen_shots = []
         for item in device_service.devices:
             device = device_service.devices[item]
@@ -97,8 +96,7 @@ class MyUI(lyrebird.PluginView):
             )
         lyrebird.publish('ios.screenshot', screen_shots, state=True)
 
-    @staticmethod
-    def get_screenshot_image(device_id):
+    def get_screenshot_image(self, device_id):
         return send_from_directory(tmp_dir, '%s.png' % device_service.devices.get(device_id).model.replace(' ', '_'))
 
     def make_dump_data(self, path):
