@@ -44,12 +44,11 @@ class MyUI(lyrebird.PluginView):
         device_info['device'] = {'UDID': device_prop['device_id'], 'Model': device_prop['model'], 'Version': device_prop['os_version']}
 
         plugin_conf = lyrebird.context.application.conf.get('plugin.ios')
-        if hasattr(plugin_conf, 'default_app'):
-            default_app = plugin_conf.default_app
-        else:
-            default_app = ''
+        if not plugin_conf:
+            default_bundle_id = ''
+        default_bundle_id = plugin_conf.get('default_bundle_id')
 
-        device_info['app'] = device.get_app_info(default_app)
+        device_info['app'] = device.get_app_info(default_bundle_id)
         return jsonify(device_info)
 
     def device_list(self):
