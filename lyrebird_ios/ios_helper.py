@@ -1,9 +1,7 @@
 import os, plistlib, subprocess, threading, codecs, json, time
-from pathlib import Path
 import lyrebird
 from lyrebird import context
 from lyrebird.log import get_logger
-from .helper import config
 
 _log = get_logger()
 
@@ -112,16 +110,12 @@ class Apps:
 
     @property
     def app_key(self):
-        conf = config.load()
-        if hasattr(conf, 'app_info'):
-            return config.load().app_info
-        else:
-            return {
-                "CFBundleName": "AppName",
-                "CFBundleIdentifier": "BundleID",
-                "CFBundleShortVersionString": "VersionNumber",
-                "CFBundleVersion": "BuildNumber"
-            }
+        return {
+            "CFBundleName": "AppName",
+            "CFBundleIdentifier": "BundleID",
+            "CFBundleShortVersionString": "VersionNumber",
+            "CFBundleVersion": "BuildNumber"
+        }
 
     def app(self, bundle_id):
         for app in self.apps:

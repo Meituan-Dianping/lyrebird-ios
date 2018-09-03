@@ -1,7 +1,6 @@
 import lyrebird
 from lyrebird import context
 from . import ios_helper
-from .helper import config
 from lyrebird.log import get_logger
 
 _log = get_logger()
@@ -82,8 +81,8 @@ class DeviceService:
 
     @staticmethod
     def get_default_app_name():
-        conf = config.load()
-        if hasattr(conf, 'default_app'):
-            return conf.default_app
+        plugin_conf = lyrebird.context.application.conf.get('plugin.ios')
+        if hasattr(plugin_conf, 'default_app'):
+            return plugin_conf.default_app
         else:
             return ''

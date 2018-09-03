@@ -1,16 +1,11 @@
 from flask import request, jsonify, send_from_directory
 from lyrebird import context
 import lyrebird
-from .device_service import DeviceService
-from .helper import config
 import codecs
 import time
 import os
 import socket
-import json
 from lyrebird.log import get_logger
-from pathlib import Path
-import traceback
 from .device_service import DeviceService
 
 _log = get_logger()
@@ -48,9 +43,9 @@ class MyUI(lyrebird.PluginView):
         device_prop = device.to_dict()
         device_info['device'] = {'UDID': device_prop['device_id'], 'Model': device_prop['model'], 'Version': device_prop['os_version']}
 
-        conf = config.load()
-        if hasattr(conf, 'default_app'):
-            default_app = conf.default_app
+        plugin_conf = lyrebird.context.application.conf.get('plugin.ios')
+        if hasattr(plugin_conf, 'default_app'):
+            default_app = plugin_conf.default_app
         else:
             default_app = ''
 
@@ -63,15 +58,7 @@ class MyUI(lyrebird.PluginView):
     def device_detail(self, device_id):
         return "\n".join(device_service.devices.get(device_id).device_info)
 
-    def last_package_name(self):
-        conf = config.load()
-        return jsonify({"packageName": conf.package_name})
-
     def app_info(self, device_id, bundle_id):
-
-        # conf = config.load()
-        # conf.package_name = package_name
-        # conf.save()
         device = device_service.devices.get(device_id)
         return jsonify(device.get_app_info(bundle_id))
 
@@ -95,24 +82,24 @@ class MyUI(lyrebird.PluginView):
         else:
             return context.make_fail_response('Could not start screenshot service! '
                                               'Please make sure the idevicescreenshot command works correctly')
-
-    def get_screen_shot(self):
+    @staticmethod
+    def get_screen_shot(msg):
         screen_shots = []
         for item in device_service.devices:
             device = device_service.devices[item]
-            self.take_screen_shot(item)
             screen_shots.append(
                 {
                     'id': item,
                     'screenshot': {
                         'name': device.model.replace(' ', '_'),
-                        'path': self.get_screenshot_image(item)
+                        'path': device.take_screen_shot()
                     }
                 }
             )
         lyrebird.publish('ios.screenshot', screen_shots, state=True)
 
-    def get_screenshot_image(self, device_id):
+    @staticmethod
+    def get_screenshot_image(device_id):
         return send_from_directory(tmp_dir, '%s.png' % device_service.devices.get(device_id).model.replace(' ', '_'))
 
     def make_dump_data(self, path):
@@ -149,35 +136,6 @@ class MyUI(lyrebird.PluginView):
 
         return jsonify(res)
 
-    def start_app(self, device_id, package_name):
-        """
-
-        :param device_id:
-        :return:
-        """
-        device = device_service.devices.get(device_id)
-        if not device:
-            device = list(device_service.devices.values())[0]
-        conf = config.load()
-        app = device.package_info(conf.package_name)
-        device.stop_app(conf.package_name)
-        port = lyrebird.context.application.conf.get('mock').get('port')
-        device.start_app(app.launch_activity, get_ip(), port)
-        return context.make_ok_response()
-
-    def stop_app(self, device_id, package_name):
-        """
-
-        :param device_id:
-        :return:
-        """
-        device = device_service.devices.get(device_id)
-        if not device:
-            device = list(device_service.devices.values())[0]
-        conf = config.load()
-        device.stop_app(conf.package_name)
-        return context.make_ok_response()
-
     def dump(self, device_id):
         """
         保存截图 设备信息 日志 app信息
@@ -200,22 +158,6 @@ class MyUI(lyrebird.PluginView):
 
         return device_prop_file_path
 
-    def get_app_info_file_path(self, device):
-        conf = config.load()
-        app_info_file_path = ''
-        if conf.package_name:
-            app_info_file_path = os.path.abspath(os.path.join(tmp_dir, '%s.info.txt' % conf.package_name))
-            app_info = device.package_info(conf.package_name)
-            app_info_file = codecs.open(app_info_file_path, 'w', 'utf-8')
-            app_info_file.writelines(app_info.raw)
-            app_info_file.close()
-
-        return app_info_file_path
-
-    def get_default_conf(self):
-        conf = config.load()
-        return jsonify(conf.__dict__)
-
     def check_env(self):
         from .ios_helper import error_msg
         return jsonify(error_msg)
@@ -236,7 +178,6 @@ class MyUI(lyrebird.PluginView):
         else:
             return context.make_fail_response('No device found, is it plugged in?')
 
-
     def on_create(self):
         """
         插件初始化函数（必选）
@@ -247,7 +188,6 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/info', view_func=self.info)
         # for Bugit
         self.add_url_rule('/api/desc', view_func=self.desc)
-        self.add_url_rule('/api/conf', view_func=self.get_default_conf)
         # Dump所有信息
         # self.add_url_rule('/api/dump/<string:device_id>', view_func=self.dump)
         # 获取设备列表
@@ -273,7 +213,7 @@ class MyUI(lyrebird.PluginView):
         # 启动设备监听服务
         lyrebird.start_background_task(device_service.run)
         # 订阅 cmd 消息，并开始截图
-        lyrebird.subscribe('ios.cmd', self.get_screen_shot())
+        lyrebird.subscribe('ios.cmd', self.get_screen_shot)
 
     @staticmethod
     def get_icon():
@@ -284,12 +224,6 @@ class MyUI(lyrebird.PluginView):
     def get_title():
         # 设置插件的名称
         return 'iOS'
-
-    def default_conf(self):
-        current_dir = Path(__file__).parent
-        conf_path = Path(current_dir, './config/conf.json')
-        with codecs.open(conf_path, 'r', 'utf-8') as f:
-            return json.loads(f.read())
 
 
 def get_ip():
