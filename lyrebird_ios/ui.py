@@ -85,12 +85,13 @@ class MyUI(lyrebird.PluginView):
         screen_shots = []
         for item in device_service.devices:
             device = device_service.devices[item]
+            screen_shot_path = device.take_screen_shot()
             screen_shots.append(
                 {
                     'id': item,
                     'screenshot': {
-                        'name': device.model.replace(' ', '_'),
-                        'path': device.take_screen_shot()
+                        'name': os.path.basename(screen_shot_path),
+                        'path': screen_shot_path
                     }
                 }
             )
