@@ -137,12 +137,10 @@
                             <h1>No device found, is it plugged in?</h1><br>
                             <h4>🚀 The easiest way to manage your iOS devices. </h4>
                             <hr style="height: 3px">
+                            <br>
                             <div v-show="showError">
                                 <h3>If the device is already connected 👇</h3>
-                                <font color="#FF0000"><b>&#x26A1; {{ userMsg }}</b></font>
-                                <br><br>
-                                <h4><b>External dependencies</b></h4>
-                                <span style="color: #FF0000; "><b>This plugin currently depends on libimobiledevice to do certain things. Install it with Homebrew. </b></span>
+                                <span style="color: #FF0000;" v-html="userMsg"></span>
                             </div>
                         </div>
 

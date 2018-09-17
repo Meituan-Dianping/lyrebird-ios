@@ -30,14 +30,6 @@ if not os.path.exists(crash_dir):
     os.makedirs(crash_dir)
 
 
-class libimobiledeviceError(Exception):
-    pass
-
-
-class ideviceinstallerError(Exception):
-    pass
-
-
 def check_environment():
     """
     检查用户环境，第三方依赖是否正确安装。
@@ -47,29 +39,41 @@ def check_environment():
 
     if not os.path.exists('/usr/local/bin/ideviceinfo'):
         error_msg = {"show_error": True,
-                     "user_message": "No ideviceinfo program found, need libimobiledevice dependencies with Homebrew, See README Help Center"}
+                     "user_message": '<b>No ideviceinfo program found, need libimobiledevice '
+                                     'dependencies with Homebrew, See <a href="https://github.com/'
+                                     'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
+                                     'target="_blank">README 常见问题</a></b>'}
         time.sleep(20)
-        raise libimobiledeviceError('No libimobiledevice program found, See README Help Center')
+        _log.debug('No libimobiledevice program found.')
     else:
         p = subprocess.Popen('/usr/local/bin/ideviceinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err = p.stderr.read().decode()
         if len(err):
             error_msg = {"show_error": True,
-                         "user_message": "ideviceinfo program found but not working with error -> %s, See README Help Center" % err}
+                         "user_message": '<b>ideviceinfo program found but not working with error, '
+                                         'See <a href="https://github.com/'
+                                         'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
+                                         'target="_blank">README 常见问题</a></b>'}
             time.sleep(20)
-            raise libimobiledeviceError('ideviceinfo program found but not working with error -> %s, See README Help Center' % err)
+            _log.debug('ideviceinfo program found but not working with error: %s.' % err)
 
     if not os.path.exists('/usr/local/bin/ideviceinstaller'):
         error_msg = {"show_error": True,
-                     "user_message": "No ideviceinstaller program found, need ideviceinstaller dependencies use Homebrew, See README Help Center"}
+                     "user_message": '<b>No ideviceinstaller program found, '
+                                     'dependencies with Homebrew, See <a href="https://github.com/'
+                                     'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
+                                     'target="_blank">README 常见问题</a></b>'}
         time.sleep(20)
-        raise ideviceinstallerError("No ideviceinstaller program found, need ideviceinstaller dependencies use Homebrew, See README Help Center")
+        _log.debug("No ideviceinstaller program found.")
 
     if not os.path.exists('/usr/local/bin/idevicescreenshot'):
         error_msg = {"show_error": True,
-                     "user_message": "No idevicescreenshot program found, need libimobiledevice dependencies use Homebrew, See README Help Center"}
+                     "user_message": '<b>No idevicescreenshot program found, '
+                                     'dependencies with Homebrew, See <a href="https://github.com/'
+                                     'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
+                                     'target="_blank">README 常见问题</a></b>'}
         time.sleep(20)
-        raise libimobiledeviceError('No idevicescreenshot program found, See README Help Center')
+        _log.debug('No idevicescreenshot program found.')
 
     idevice_id = '/usr/local/bin/idevice_id'
     ideviceinstaller = '/usr/local/bin/ideviceinstaller'
