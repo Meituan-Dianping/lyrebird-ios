@@ -158,7 +158,7 @@ class Device:
         self._log_cache = []
         self._log_crash_cache = []
         self._log_file = None
-        self._screen_shot_file = os.path.abspath(os.path.join(tmp_dir, 'android_screenshot_%s.png' % self.device_id))
+        self._screen_shot_file = None
         self._anr_file = None
         self._crash_file_list = []
         self._device_info = None
@@ -191,7 +191,6 @@ class Device:
         _device = cls(line)
         if len(device_info) < 2:
             _log.error(f'Read device info line error. {lines}')
-            raise libimobiledeviceError('Failed to got device info, Please make sure \'deviceinfo\' command is working on your system.')
         for info in device_info:
             info_kv = info.split(':')
             if info_kv[0] == 'ProductType':
@@ -231,8 +230,6 @@ class Device:
                     log_file.close()
                     return
 
-                # self.crash_checker(line)
-                # self.anr_checker(line)
                 self._log_cache.append(line.decode(encoding='UTF-8', errors='ignore'))
 
                 if len(self._log_cache) >= 5000:
@@ -241,24 +238,6 @@ class Device:
                     log_file.flush()
                     self._log_cache = []
         threading.Thread(target=log_handler, args=(p,)).start()
-
-    def crash_checker(self, line):
-        crash_log_path = os.path.join(crash_dir, 'android_crash_%s.log' % self.device_id)
-
-        if str(line).find('FATAL EXCEPTION') > 0:
-            self.start_catch_log = True
-            self._log_crash_cache.append(str(line))
-            lyrebird.publish('crash', 'android', path=crash_log_path, id=self.device_id)
-        elif str(line).find('AndroidRuntime') > 0 and self.start_catch_log:
-            self._log_crash_cache.append(str(line))
-        else:
-            self.start_catch_log = False
-            with codecs.open(crash_log_path, 'w') as f:
-                f.write('\n'.join(self._log_crash_cache))
-
-    def anr_checker(self, line):
-        if str(line).find('ANR') > 0 and str(line).find('ActivityManager') > 0:
-            self.get_anr_log()
 
     @property
     def device_info(self):
@@ -309,20 +288,6 @@ class Device:
         prop_lines = self.device_info
         if not prop_lines:
             return device_info
-
-        for line in prop_lines:
-            # 基带版本
-            if 'ro.build.expect.baseband' in line:
-                baseband = line[line.rfind('[')+1:line.rfind(']')].strip()
-                device_info['baseBand'] = baseband
-            # 版本号
-            if 'ro.build.id' in line:
-                build_id = line[line.rfind('[') + 1:line.rfind(']')].strip()
-                device_info['buildId'] = build_id
-            # Android 版本
-            if 'ro.build.version.release' in line:
-                build_version = line[line.rfind('[') + 1:line.rfind(']')].strip()
-                device_info['releaseVersion'] = build_version
         return device_info
 
 

@@ -42,14 +42,16 @@ class MyUI(lyrebird.PluginView):
         device_prop = device.to_dict()
         device_info['device'] = {'UDID': device_prop['device_id'], 'Model': device_prop['model'], 'Version': device_prop['os_version']}
 
-        plugin_conf = lyrebird.context.application.conf.get('plugin.ios')
-        if not plugin_conf:
-            default_bundle_id = ''
-        default_bundle_id = plugin_conf.get('default_bundle_id')
-
+        plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
+        default_bundle_id = plugin_conf.get('bundle_id', '')
         device_info['app'] = device.get_app_info(default_bundle_id)
         return jsonify(device_info)
-
+    
+    def conf(self):
+        plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
+        default_bundle_id = plugin_conf.get('bundle_id', '')
+        return jsonify(default_bundle_id)
+        
     def device_list(self):
         return jsonify(device_service.devices_to_dict())
 
@@ -134,18 +136,6 @@ class MyUI(lyrebird.PluginView):
 
         return jsonify(res)
 
-    def dump(self, device_id):
-        """
-        保存截图 设备信息 日志 app信息
-        :param device_id:
-        :return: 所有信息文件绝对路径 json list
-        """
-        device = device_service.devices.get(device_id)
-        if device:
-            device.take_screen_shot()
-
-        return jsonify([device.log_file, device.screen_shot_file, self.get_app_info_file_path(device), self.get_prop_file_path(device, device_id)])
-
     def get_prop_file_path(self, device, device_id):
         device_prop_file_path = os.path.abspath(os.path.join(tmp_dir, '%s.info.txt' % device_id))
         device_prop = device.device_info
@@ -186,8 +176,6 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/info', view_func=self.info)
         # for Bugit
         self.add_url_rule('/api/desc', view_func=self.desc)
-        # Dump所有信息
-        # self.add_url_rule('/api/dump/<string:device_id>', view_func=self.dump)
         # 获取设备列表
         self.add_url_rule('/api/devices', view_func=self.device_list)
         # 设备详情
@@ -208,6 +196,8 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/dump', view_func=self.dump_data)
         # 检查环境
         self.add_url_rule('/api/check-env', view_func=self.check_env)
+        # 获取默认配置
+        self.add_url_rule('/api/conf', view_func=self.conf) 
         # 启动设备监听服务
         lyrebird.start_background_task(device_service.run)
         # 订阅 cmd 消息，并开始截图
