@@ -190,7 +190,7 @@ new Vue({
         status: false,
         isStop: false,
         starting: false,
-        defaultApp: "com.meituan.imeituan-beta",
+        defaultApp: "",
         spinnerStatus: false,
         appInfo: {},
         devices: {},
@@ -208,7 +208,6 @@ new Vue({
 
             var getDevices = this.getDevices;
             sio.on('device', function (data) {
-                console.log('Update device list');
                 getDevices();
             });
         },
@@ -221,22 +220,20 @@ new Vue({
                 fetch(apiUrl + '/check-env')
                     .then(res => res.json())
                     .then(json => {
-                        console.log('Got response: ' + json);
                         this.showError = json.show_error;
                         this.userMsg = json.user_message;
                         this.loading = false
                     })
                     .catch(err => console.warn(err));
             },
-            get_default_app() {
-                fetch(apiUrl + '/conf')
-                    .then(res => res.json())
-                    .then(json => {
-                        console.log('Got response: ' + json);
-                        this.defaultApp = json.default_app;
-                        this.loading = false
-                    })
-                    .catch(err => console.warn(err));
+            get_default_app: function() {
+                this.$http.get(apiUrl + '/conf')
+                    .then(function (response) {
+                        console.log('default app:', response.data);
+                        if(response.data){
+                            this.defaultApp = response.data;
+                        }
+                    });
             },
             maybeLoad() {
                 return Object.keys(this.options).length <= 0 ? this.load() : null
@@ -246,7 +243,6 @@ new Vue({
               fetch(apiUrl + '/apps/' + this.currentDevice.device_id)
                 .then(res => res.json())
                 .then(json => {
-                  console.log('Got response: ' + json);
                   this.options = json;
                   this.loading = false
                 })
@@ -262,7 +258,6 @@ new Vue({
                 fetch(apiUrl + '/apps/' + this.currentDevice.device_id + '/' + bundle_id)
                     .then(res => res.json())
                     .then(json => {
-                        console.log('Got response: ' + json);
                         this.appInfo = json;
                         this.loading = false
                     })
@@ -270,16 +265,13 @@ new Vue({
             },
             getDevices: function () {
                 this.$http.get(apiUrl + '/devices').then(function (response) {
-                    console.info("api/device got response", response.data);
                     this.devices = response.data;
                 });
             },
             getDeviceDetail: function () {
-                console.log('get device detail');
                 this.$http.get(apiUrl + '/device/' + this.currentDevice.device_id)
                     .then(function (response) {
                         this.currentDeviceDetail = response.data;
-                        console.log(response.data)
                     });
                 if (this.packageName){
                     this.getAppInfo();
@@ -299,14 +291,11 @@ new Vue({
                     });
             },
             showDeviceInfo: function (device_id) {
-                console.info('vue show device info ', device_id);
                 if (this.currentDevice !== this.devices[device_id]) {
                     this.logs = [];
                     this.currentDevice = this.devices[device_id];
-//                    sio.emit('log-start', this.currentDevice.device_id)
                 }
                 this.getDeviceDetail();
-//                this.takeScreenShot();
             },
         }
     })
