@@ -125,6 +125,8 @@ class Apps:
         for app in self.apps:
             if bundle_id in app.get('CFBundleIdentifier'):
                 return app
+        _log.debug(f'{bundle_id} is not found in this device!')
+        return {}
 
     def get_app_list(self):
         app_list = []
@@ -276,11 +278,13 @@ class Device:
 
     def take_screen_shot(self):
         file_name = self.model.replace(' ', '_')
-        p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {tmp_dir}/{file_name}.png', shell=True)
+        p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {tmp_dir}/{file_name}.png', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        err_str = p.stdout.decode()
         if p.returncode == 0:
             return os.path.abspath(os.path.join(tmp_dir, '%s.png' % file_name))
         else:
-            return False
+            _log.error(f'{err_str}')
+            return ''
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
