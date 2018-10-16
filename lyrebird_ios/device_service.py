@@ -81,7 +81,6 @@ class DeviceService:
 
     @staticmethod
     def get_default_app_name():
-        plugin_conf = lyrebird.context.application.conf.get('plugin.ios')
-        if not plugin_conf:
-            return ''
-        return plugin_conf.get('default_bundle_id')
+        plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
+        default_bundle_id = plugin_conf.get('bundle_id', '')
+        return default_bundle_id
