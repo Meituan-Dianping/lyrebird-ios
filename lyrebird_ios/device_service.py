@@ -68,15 +68,20 @@ class DeviceService:
                         'model': info.model,
                         'os': info.os_version,
                         'sn': info.sn
-                    },
-                    'app': {
-                        'name': app['AppName'],
-                        'version': app['VersionNumber'],
-                        'build': app['BuildNumber'],
-                        'bundleID': app['BundleID']
                     }
                 }
             )
+            if app.get('AppName'):
+                devices.append(
+                    {
+                        'app': {
+                            'name': app['AppName'],
+                            'version': app['VersionNumber'],
+                            'build': app['BuildNumber'],
+                            'bundleID': app['BundleID']
+                        }
+                    }
+                )
         lyrebird.publish('ios.device', devices, state=True)
 
     @staticmethod
