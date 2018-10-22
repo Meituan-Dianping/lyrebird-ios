@@ -58,25 +58,25 @@ class DeviceService:
     def publish_devices_info_event(self, online_devices):
         devices = []
         for item in online_devices:
-            info = online_devices[item]
-            app = online_devices[item].get_app_info(self.get_default_app_name())
-            devices.append(
-                {
-                    'id': info.device_id,
-                    'info': {
-                        'name': info.device_name,
-                        'model': info.model,
-                        'os': info.os_version,
-                        'sn': info.sn
-                    },
-                    'app': {
-                        'name': app['AppName'],
-                        'version': app['VersionNumber'],
-                        'build': app['BuildNumber'],
-                        'bundleID': app['BundleID']
-                    }
+            device_info = online_devices[item]
+            app_info = online_devices[item].get_app_info(self.get_default_app_name())
+            message_info = {
+                'id': device_info.device_id,
+                'info': {
+                    'name': device_info.device_name,
+                    'model': device_info.model,
+                    'os': device_info.os_version,
+                    'sn': device_info.sn
+                },
+            }
+            if app_info.get('AppName'):
+                message_info['app'] = {
+                    'name': app_info['AppName'],
+                    'version': app_info['VersionNumber'],
+                    'build': app_info['BuildNumber'],
+                    'bundleID': app_info['BundleID']
                 }
-            )
+            devices.append(message_info)
         lyrebird.publish('ios.device', devices, state=True)
 
     @staticmethod
