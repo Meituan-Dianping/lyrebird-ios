@@ -2,6 +2,7 @@ import os, plistlib, subprocess, threading, codecs, json, time
 import lyrebird
 from lyrebird import context
 from lyrebird.log import get_logger
+from . import wda_helper
 
 _log = get_logger()
 
@@ -21,6 +22,8 @@ crash_dir = os.path.abspath(os.path.join(storage, 'crash'))
 
 PLIST_PATH = os.path.join(storage, 'plist')
 error_msg = None
+
+ios_driver = wda_helper.Helper()
 
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
@@ -213,39 +216,33 @@ class Device:
         model_dict = json.loads(codecs.open(model_json, 'r', 'utf-8').read())
         return model_dict.get(model)
 
-    def start_log(self):
-        self.stop_log()
-
-        log_file_name = 'ios_log_%s.log' % self.device_id
-        self._log_file = os.path.abspath(os.path.join(tmp_dir, log_file_name))
-
-        p = subprocess.Popen(f'{idevicesyslog} -u {self.device_id}', shell=True, stdout=subprocess.PIPE)
-
-        def log_handler(logcat_process):
-            log_file = codecs.open(self._log_file, 'w', 'utf-8')
-
-            while True:
-                line = logcat_process.stdout.readline()
-
-                if not line:
-                    context.application.socket_io.emit('log', self._log_cache, namespace='/iOS-plugin')
-                    log_file.close()
-                    return
-
-                self._log_cache.append(line.decode(encoding='UTF-8', errors='ignore'))
-
-                if len(self._log_cache) >= 5000:
-                    context.application.socket_io.emit('log', self._log_cache, namespace='/iOS-plugin')
-                    log_file.writelines(self._log_cache)
-                    log_file.flush()
-                    self._log_cache = []
-        threading.Thread(target=log_handler, args=(p,)).start()
-
     @property
     def device_info(self):
         if not self._device_info:
             self._device_info = self.get_properties()
         return self._device_info
+    
+    def start_app(self, bundle_id, ip, port):
+        ios_driver.bundle_id = bundle_id
+        ios_driver.environment = {
+            'mock': f'http://{ip}:{port}/mock',
+            'closeComet': True,
+            'urlscheme': True
+        }
+        try:
+            ios_driver.start_app()
+        except Exception as e:
+            pass
+            return str(e)
+        return ''
+
+    def stop_app(self):
+        try:
+            ios_driver.stop_app()
+        except AttributeError as e:
+            pass
+            return str(e)
+        return 
 
     def get_properties(self):
         p = subprocess.run(f'{ideviceinfo} -u {self.device_id}', shell=True, stdout=subprocess.PIPE)

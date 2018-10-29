@@ -45,7 +45,7 @@ class DeviceService:
                 return
 
         self.devices = devices
-        self.publish_devices_info_event(self.devices)
+        self.publish_devices_info_event(self.devices, self.get_default_app_name())
         context.application.socket_io.emit('device', namespace='/iOS-plugin')
 
     def start_log_recorder(self, device_id):
@@ -55,11 +55,11 @@ class DeviceService:
             else:
                 self.devices[_device_id].stop_log()
 
-    def publish_devices_info_event(self, online_devices):
+    def publish_devices_info_event(self, online_devices, app_name):
         devices = []
         for item in online_devices:
             device_info = online_devices[item]
-            app_info = online_devices[item].get_app_info(self.get_default_app_name())
+            app_info = online_devices[item].get_app_info(app_name)
             message_info = {
                 'id': device_info.device_id,
                 'info': {
