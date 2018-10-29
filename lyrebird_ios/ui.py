@@ -50,7 +50,7 @@ class MyUI(lyrebird.PluginView):
     def conf(self):
         plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
         default_bundle_id = plugin_conf.get('bundle_id', '')
-        return jsonify(default_bundle_id)
+        return jsonify({"bundleId": default_bundle_id})
         
     def device_list(self):
         return jsonify(device_service.devices_to_dict())
@@ -58,8 +58,11 @@ class MyUI(lyrebird.PluginView):
     def device_detail(self, device_id):
         return "\n".join(device_service.devices.get(device_id).device_info)
 
-    def app_info(self, device_id, bundle_id):
+    def get_app_info(self, device_id, bundle_id):
         device = device_service.devices.get(device_id)
+        def send_device_event():
+            device_service.publish_devices_info_event(device, bundle_id)
+        lyrebird.add_background_task('SendDeviceEvent', send_device_event)
         return jsonify(device.get_app_info(bundle_id))
 
     def app_list(self, device_id):
@@ -68,7 +71,22 @@ class MyUI(lyrebird.PluginView):
             app_list = device.get_apps_list(device_id)
             return jsonify(app_list)
         else:
-            return context.make_fail_response('No device_id found. Are you sure?')
+            return context.make_fail_response('No device_id found.')
+    
+    def start_app(self, device_id, bundle_id):
+        device = device_service.devices.get(device_id)
+        port = lyrebird.context.application.conf.get('mock.port')
+        res = device.start_app(bundle_id, get_ip(), port)
+        if 'ConnectionResetError' in res and '54' in res:
+            return context.make_fail_response('WDA is not ready!')
+        return context.make_ok_response()
+
+    def stop_app(self, device_id, bundle_id):
+        device = device_service.devices.get(device_id)
+        res = device.stop_app()
+        if 'NoneType' in res:
+            return context.make_fail_response('Cannot stop app before start it.')
+        return context.make_ok_response()
 
     def logcat_start(self, device_id):
         print('Logcat start', device_id)
@@ -180,16 +198,16 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/devices', view_func=self.device_list)
         # 设备详情
         self.add_url_rule('/api/device/<string:device_id>', view_func=self.device_detail)
-        # self.add_url_rule('/api/package_name', view_func=self.last_package_name)
         # 获取app详情
-        self.add_url_rule('/api/apps/<string:device_id>/<string:bundle_id>', view_func=self.app_info)
+        self.add_url_rule('/api/apps/<string:device_id>/<string:bundle_id>', view_func=self.get_app_info)
         # 进行截图
         self.add_url_rule('/api/screenshot/<string:device_id>', view_func=self.take_screen_shot)
         # 获取截图
         self.add_url_rule('/api/src/screenshot/<string:device_id>', view_func=self.get_screenshot_image)
         # 启动应用
-        # self.add_url_rule('/api/start_app/<string:device_id>/<string:package_name>', view_func=self.start_app)
-        # self.add_url_rule('/api/stop_app/<string:device_id>/<string:package_name>', view_func=self.stop_app)
+        self.add_url_rule('/api/start_app/<string:device_id>/<string:bundle_id>', view_func=self.start_app)
+        # 关闭应用
+        self.add_url_rule('/api/stop_app/<string:device_id>/<string:bundle_id>', view_func=self.stop_app)
         # 获取设备应用列表
         self.add_url_rule('/api/apps/<string:device_id>', view_func=self.app_list)
         # 获取资源信息
