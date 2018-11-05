@@ -105,9 +105,14 @@ class MyUI(lyrebird.PluginView):
                                               'Please make sure the idevicescreenshot command works correctly')
 
     def get_screen_shot(self, message):
+        if message.get('cmd') != 'screenshot':
+            return
         screen_shots = []
-        for device_id in message:
+        device_list = message.get('id')
+        for device_id in device_list:
             device = device_service.devices.get(device_id)
+            if not device:
+                continue
             screen_shot_info = device.take_screen_shot()
             screen_shots.append(
                 {
