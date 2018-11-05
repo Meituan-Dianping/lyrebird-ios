@@ -291,6 +291,7 @@
                         if (response.data.code === 3000) {
                             this.user_msg = response.data.message
                         } else {
+                            console.log('response.data.imgUrl',response.data.imgUrl);
                             this.screenShotUrl = response.data.imgUrl;
                             this.user_msg = null
                         }

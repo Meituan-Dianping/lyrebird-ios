@@ -14,6 +14,7 @@ device_service = DeviceService()
 storage = lyrebird.get_plugin_storage()
 tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
+screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
@@ -94,65 +95,44 @@ class MyUI(lyrebird.PluginView):
 
     def take_screen_shot(self, device_id):
         device = device_service.devices.get(device_id)
-        img_path = device.take_screen_shot()
-        if img_path:
-            return jsonify({'imgUrl': '/ui/plugin/iOS/api/src/screenshot/%s?time=%s' % (device_id, time.time())})
+        img_info = device.take_screen_shot()
+        timestrap = img_info.get('timestrap')
+        if img_info.get('screen_shot_file'):
+            test = {'imgUrl': f'/ui/plugin/iOS/api/src/screenshot/{device_id}?time={timestrap}'}
+            return jsonify(test)
         else:
             return context.make_fail_response('Could not start screenshot service! '
                                               'Please make sure the idevicescreenshot command works correctly')
 
-    def get_screen_shot(self, msg):
+    def get_screen_shot(self, message):
         screen_shots = []
-        for item in device_service.devices:
-            device = device_service.devices[item]
-            screen_shot_path = device.take_screen_shot()
+        for device_id in message:
+            device = device_service.devices.get(device_id)
+            screen_shot_info = device.take_screen_shot()
             screen_shots.append(
                 {
-                    'id': item,
+                    'id': device_id,
                     'screenshot': {
-                        'name': os.path.basename(screen_shot_path),
-                        'path': screen_shot_path
+                        'name': os.path.basename(screen_shot_info.get('screen_shot_file')),
+                        'path': screen_shot_info.get('screen_shot_file')
                     }
                 }
             )
         lyrebird.publish('ios.screenshot', screen_shots, state=True)
 
     def get_screenshot_image(self, device_id):
-        return send_from_directory(tmp_dir, '%s.png' % device_service.devices.get(device_id).model.replace(' ', '_'))
+        if request.args.get('time'):
+            model = device_service.devices.get(device_id).model.replace(' ', '_')
+            timestrap = request.args.get('time')
+            return send_from_directory(screenshot_dir, f'{model}_{timestrap}.png')
+        else:
+            return None
 
     def make_dump_data(self, path):
         device_data = {}
         device_data['name'] = os.path.basename(path)
         device_data['path'] = path
         return device_data
-
-    def dump_data(self):
-        """
-        获取所有设备相关信息，包括设备日志，崩溃日志，ANR日志，快照图片，APP_INFO等
-        :return: name, path
-        e.g
-        [
-            {
-                "name": "ios_log_{imei}.log",
-                "path": "/Users/lee/.lyrebird/plugins/lyrebird_ios/tmp/android_log_{imei}.log"
-            },
-            {
-                "name": "ios_screenshot_{imei}.png",
-                "path": "/Users/lee/.lyrebird/plugins/lyrebird_ios/tmp/android_screenshot_{imei}.png"
-            }
-        ]
-        """
-        res = []
-        devices = device_service.devices
-
-        for udid in devices:
-            device = devices[udid]
-            if device.log_file:
-                res.append(self.make_dump_data(device.log_file))
-            if device.take_screen_shot():
-                res.append(self.make_dump_data(device.take_screen_shot()))
-
-        return jsonify(res)
 
     def get_prop_file_path(self, device, device_id):
         device_prop_file_path = os.path.abspath(os.path.join(tmp_dir, '%s.info.txt' % device_id))
@@ -210,8 +190,6 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/stop_app/<string:device_id>/<string:bundle_id>', view_func=self.stop_app)
         # 获取设备应用列表
         self.add_url_rule('/api/apps/<string:device_id>', view_func=self.app_list)
-        # 获取资源信息
-        self.add_url_rule('/api/dump', view_func=self.dump_data)
         # 检查环境
         self.add_url_rule('/api/check-env', view_func=self.check_env)
         # 获取默认配置

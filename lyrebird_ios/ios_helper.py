@@ -19,6 +19,7 @@ storage = lyrebird.get_plugin_storage()
 
 tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 crash_dir = os.path.abspath(os.path.join(storage, 'crash'))
+screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 PLIST_PATH = os.path.join(storage, 'plist')
 error_msg = None
@@ -274,11 +275,18 @@ class Device:
             self._log_process = None
 
     def take_screen_shot(self):
+        if not os.path.exists(screenshot_dir):
+            os.makedirs(screenshot_dir)
         file_name = self.model.replace(' ', '_')
-        p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {tmp_dir}/{file_name}.png', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        timestrap = int(time.time())
+        screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestrap}.png'))
+        p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err_str = p.stdout.decode()
         if p.returncode == 0:
-            return os.path.abspath(os.path.join(tmp_dir, '%s.png' % file_name))
+            return dict({
+                'screen_shot_file': screen_shot_file,
+                'timestrap': timestrap
+            })
         else:
             _log.error(f'{err_str}')
             return ''
