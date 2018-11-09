@@ -1,3 +1,5 @@
+import os
+import shutil
 import lyrebird
 from lyrebird import context
 from . import ios_helper
@@ -18,6 +20,7 @@ class DeviceService:
         self.status = self.READY
         self.handle_interval = 1
         self.devices = {}
+        self.reset_screenshot_dir()
         print('DeviceService OnCreate')
 
     def devices_to_dict(self):
@@ -84,3 +87,8 @@ class DeviceService:
         plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
         default_bundle_id = plugin_conf.get('bundle_id', '')
         return default_bundle_id
+        
+    def reset_screenshot_dir(self):
+        if os.path.exists(ios_helper.screenshot_dir):
+            shutil.rmtree(ios_helper.screenshot_dir)
+            print('iOS device log file reset')
