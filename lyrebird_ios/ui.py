@@ -108,7 +108,7 @@ class MyUI(lyrebird.PluginView):
         if message.get('cmd') != 'screenshot':
             return
         screen_shots = []
-        device_list = message.get('id')
+        device_list = message.get('device_id')
         for device_id in device_list:
             device = device_service.devices.get(device_id)
             if not device:
