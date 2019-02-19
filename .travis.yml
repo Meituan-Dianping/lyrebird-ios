@@ -22,8 +22,8 @@ jobs:
       - echo "Skipping tests"
       deploy:
         provider: pypi
-        user: YurRee
+        user: yumiguan
         password:
-          secure: "wogC5Fw8UctMB/rOjEtqrs3P4FKCAK1yp1+i1f3cDZ7ayVykt0wFUJzpioCzG/ZaBUd0Uk9dFLaGjQRTWCpNMbsozB2fEjb09/0crktEyeEz8h11F/4FO9H8O0xDX3AGhEE8HS5Cw8JY1UcHbNrGv6d2ft/GTirpqt0p5ZPKYLf0Awo/N8w9rNLQlscn4rg/Scc0iYdJcANVSJXWaxsEEM93RWNTTzdsIlhGIGnA3KLLbtrDIGh77OEpo2CaQhfAvJ0s7KgciIp2guOp/5ySWCWcf8sDSy6/2DoIHpFvfQ1esJi5ERQL618fcO5gB8hQ9Dz54mbF7DBVq4xrsJ+0qG66eqqHMISKwRhSdbgvoB/Hv4aJrUpSvtqy56Yrm5/QLIXX2T+k6CAil10mthqwnOS5H6iCaj9Z7qq03gmW4DhZ1Xs4u4N19UThTeB4BENGOk1nDsBukBMzGbUbT4XbyO7NewqP0tQ89JKLnJFwmtRLAyW+qfXF1P07wt3sORWk5KhzhP0H8nzdfjkAK2UUO7BEctbLy/AzX1HJ1VPr7oaZfoEfuUUP0tQQSzYH1WtF2onbReMA69ypacxCUnCDxsspfLQvlOWDBrg4xs5UUBUTOt0dh2nsuVZCEnwlDB8mK5mnt8PP2wnI/vY9St+9W4aHoX+pgFmMwOnVWY03w3Y="
+          secure: "OOHysTCqFWBkK9i32G60FqhvqMmKgyUzSM9FIdX7j5NESnC4t2BxDZg13e2MOpV0iAUdq0zRSHuxBY/KbiLnpVbI2RWPEOD6v5efQNkNmLKoElzi4PhTnG2CxJGqwg9I0DH2qWgrSPDae5ikQpRvhqsD+G9yYDW1ge4mgGk0ui+xNAETjDswkmFOShH18mvwqdf543aoyVtmjJVMtWPoMTgqBuQL/JhCeg/xojfza0vz8sF4a1uB34kNS9femjTMXgeuPeFqX9LzHcsM3kl5t+SRi6jH86pCnqt1yyXExX0K/izpnQh9qa1Oze+NlHrVqgODYjjuSvfbtVR9hJuw+C5d0WHXfBk9BALs8hG8C51+mqQ3EBfjAUfCjBGr9yXkraaaGo/BiFrmZpKVBzG3lAkHb8/uRfg9tR87F7dxQ/uqr3qsRCtfzvk2Msc5fNczJJV0+JswdgsgJeczXU7+p/6rGIQ3TVcLKjammfLL7pPqJeP0TPNZ7SL+VDDmvusNJeYGvd4mfx1m1MpW1onhon3HsDwhd14dApIuS+vZAw0Uf9CtDZ0QMHE76+YAlnZpwA93c65+Td1gMQlL69w0wYQl76X36sLxlAmuOAzxPawscN2ampYHx6oqSkHtqkIiDz6Dr+/hUJhGRmcGbxFMGQVroP4KmJUfATITqQ3KYkc="
         on:
           tags: true
