@@ -21,7 +21,6 @@ class DeviceService:
         self.handle_interval = 1
         self.devices = {}
         self.reset_screenshot_dir()
-        print('DeviceService OnCreate')
 
     def devices_to_dict(self):
         json_obj = {}
@@ -31,7 +30,6 @@ class DeviceService:
 
     def run(self):
         self.status = self.RUNNING
-        print('iOS device listener start')
         while self.status == self.RUNNING:
             try:
                 self.handle()
@@ -39,7 +37,6 @@ class DeviceService:
             except Exception as e:
                 _log.error(e)
         self.status = self.STOP
-        print('iOS device listener stop')
 
     def handle(self):
         devices = ios_helper.devices()
@@ -62,7 +59,6 @@ class DeviceService:
         devices = []
         for item in online_devices:
             device_info = online_devices[item]
-            app_info = online_devices[item].get_app_info(app_name)
             message_info = {
                 'id': device_info.device_id,
                 'info': {
@@ -72,14 +68,19 @@ class DeviceService:
                     'sn': device_info.sn
                 },
             }
-            if app_info.get('AppName'):
-                message_info['app'] = {
-                    'name': app_info['AppName'],
-                    'version': app_info['VersionNumber'],
-                    'build': app_info['BuildNumber'],
-                    'bundleID': app_info['BundleID']
-                }
             devices.append(message_info)
+            try:
+                app_info = device_info.get_app_info(app_name)
+                if app_info.get('AppName'):
+                    message_info['app'] = {
+                        'name': app_info['AppName'],
+                        'version': app_info['VersionNumber'],
+                        'build': app_info['BuildNumber'],
+                        'bundleID': app_info['BundleID']
+                    }
+            except Exception:
+                _log.error('Can\'t read app info')
+
         lyrebird.publish('ios.device', devices, state=True)
 
     @staticmethod
@@ -87,8 +88,7 @@ class DeviceService:
         plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
         default_bundle_id = plugin_conf.get('bundle_id', '')
         return default_bundle_id
-        
+
     def reset_screenshot_dir(self):
         if os.path.exists(ios_helper.screenshot_dir):
             shutil.rmtree(ios_helper.screenshot_dir)
-            print('iOS device log file reset')

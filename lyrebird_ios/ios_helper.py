@@ -1,4 +1,9 @@
-import os, plistlib, subprocess, threading, codecs, json, time
+import os
+import plistlib
+import subprocess
+import codecs
+import json
+import time
 import lyrebird
 from lyrebird import context
 from lyrebird.log import get_logger
@@ -152,6 +157,7 @@ class Device:
     """
     设备基类，主要属性包含 device_id, model, os_version等，主要方法包括截屏，获取信息等
     """
+
     def __init__(self, device_id):
         self.device_id = device_id
         self.model = None
@@ -222,7 +228,7 @@ class Device:
         if not self._device_info:
             self._device_info = self.get_properties()
         return self._device_info
-    
+
     def start_app(self, bundle_id, ip, port):
         ios_driver.bundle_id = bundle_id
         ios_driver.environment = {
@@ -243,7 +249,7 @@ class Device:
         except AttributeError as e:
             pass
             return str(e)
-        return 
+        return
 
     def get_properties(self):
         p = subprocess.run(f'{ideviceinfo} -u {self.device_id}', shell=True, stdout=subprocess.PIPE)
@@ -260,7 +266,11 @@ class Device:
         plist_path = '%s/%s.plist' % (PLIST_PATH, self.device_id)
         if not os.path.exists(PLIST_PATH):
             os.mkdir(PLIST_PATH)
-        p = subprocess.Popen(f'{ideviceinstaller} -u {self.device_id} -l -o xml > {plist_path}', shell=True)
+        if '-' in device_id:
+            _cmd = f'{ideviceinstaller} -l -o xml > {plist_path}'
+        else:
+            _cmd = f'{ideviceinstaller} -u {self.device_id} -l -o xml > {plist_path}'
+        p = subprocess.Popen(_cmd, shell=True)
         p.wait()
 
     def get_apps_list(self, device_id):
@@ -280,7 +290,8 @@ class Device:
         file_name = self.model.replace(' ', '_')
         timestrap = int(time.time())
         screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestrap}.png'))
-        p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}',
+                           shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err_str = p.stdout.decode()
         if p.returncode == 0:
             return dict({

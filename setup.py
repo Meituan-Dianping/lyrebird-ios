@@ -8,7 +8,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lyrebird-ios',
-    version='0.2.4',
+    version='0.2.5',
     packages=['lyrebird_ios'],
     url='https://github.com/meituan/lyrebird-ios',
     author='HBQA',
@@ -28,7 +28,7 @@ setup(
         'lyrebird_web': [
             'iOS = lyrebird_ios.ui:MyUI'
         ]
-    }, 
+    },
     install_requires=[
         'lyrebird',
         'facebook-wda'
