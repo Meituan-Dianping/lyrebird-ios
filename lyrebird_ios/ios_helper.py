@@ -1,7 +1,6 @@
 import os
 import plistlib
 import subprocess
-import threading
 import codecs
 import json
 import time
