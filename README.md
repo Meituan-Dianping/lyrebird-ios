@@ -1,5 +1,5 @@
 # Lyrebird iOS Plugin
-[![Build Status](https://travis-ci.org/meituan/lyrebird-ios.svg?branch=master)](https://travis-ci.org/meituan/lyrebird-ios)
+[![Build Status](https://travis-ci.org/Meituan-Dianping/lyrebird-ios.svg?branch=master)](https://travis-ci.org/Meituan-Dianping/lyrebird-ios)
 [![PyPI](https://img.shields.io/pypi/v/lyrebird-ios.svg)](https://pypi.python.org/pypi/lyrebird-ios)
 ![PyPI](https://img.shields.io/pypi/pyversions/lyrebird.svg)
 ![GitHub](https://img.shields.io/github/license/meituan/lyrebird-ios.svg)
