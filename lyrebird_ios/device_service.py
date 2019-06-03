@@ -73,7 +73,7 @@ class DeviceService:
                 app_info = device_info.get_app_info(app_name)
                 if app_info.get('AppName'):
                     message_info['app'] = {
-                        'AppName': app_info['AppName'],
+                        'appName': app_info['AppName'],
                         'version': app_info['VersionNumber'],
                         'build': app_info['BuildNumber'],
                         'packageName': app_info['BundleID']
