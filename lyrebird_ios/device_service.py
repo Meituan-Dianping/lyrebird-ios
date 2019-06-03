@@ -73,10 +73,10 @@ class DeviceService:
                 app_info = device_info.get_app_info(app_name)
                 if app_info.get('AppName'):
                     message_info['app'] = {
-                        'name': app_info['AppName'],
+                        'appName': app_info['AppName'],
                         'version': app_info['VersionNumber'],
                         'build': app_info['BuildNumber'],
-                        'bundleID': app_info['BundleID']
+                        'packageName': app_info['BundleID']
                     }
             except Exception:
                 _log.error('Can\'t read app info')
