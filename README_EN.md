@@ -1,23 +1,24 @@
-# Lyrebird plugin iOS
+# Lyrebird iOS Plugin
+[![Build Status](https://travis-ci.org/Meituan-Dianping/lyrebird-ios.svg?branch=master)](https://travis-ci.org/Meituan-Dianping/lyrebird-ios)
+[![PyPI](https://img.shields.io/pypi/v/lyrebird-ios.svg)](https://pypi.python.org/pypi/lyrebird-ios)
+![PyPI](https://img.shields.io/pypi/pyversions/lyrebird.svg)
+![GitHub](https://img.shields.io/github/license/meituan/lyrebird-ios.svg)
 
-The easiest way to manage your iOS devices.
+---
 
 ## Feature
 * Support for take screenshot.
 * Device details are displayed on the Home page.
 * App info is displayed on the Application Management page.
-* Integration in overbridge.
-* Support for adding screenshot attachments to Bugit.
 
 ## Required
 - macOS
 - [Python >= 3.6](https://www.python.org/downloads/release/python-360/)
 - [libimobiledevice](https://github.com/libimobiledevice/libimobiledevice)
-- [ideviceinstaller](https://github.com/libimobiledevice/ideviceinstaller)
 - [Command Line Tools for Xocde](https://developer.apple.com/download/more/)
 
 ## Get ready
-This plugin currently depends on libimobiledevice to do certain things. Install it with Homebrew.
+This plugin depends on libimobiledevice to do certain things. Install it with Homebrew.
 
 - First, install [Homebrew](https://brew.sh/).
 
@@ -26,8 +27,6 @@ This plugin currently depends on libimobiledevice to do certain things. Install 
     ```bash
     $ brew install --HEAD libimobiledevice
     $ brew link --overwrite libimobiledevice
-    $ brew install --HEAD ideviceinstaller
-    $ brew link --overwrite ideviceinstaller
     $ sudo chmod -R 777 /var/db/lockdown/
     ```
 
@@ -47,7 +46,7 @@ $ pip3 install lyrebird-ios
 
     
 ## Preview
-![Home Pge](./image/home_page.png)
+![Home Page](./image/plugin-ios.gif)
 
 ## For developer
 1. Clone repo
@@ -70,7 +69,7 @@ $ pip3 install lyrebird-ios
 
 ## FAQs
 #### Some error occurs like this - "Could not connect to lockdownd ...".
-Re-install both libimobiledevice and ideviceinstaller, and then make sure below command executed
+Re-install libimobiledevice, and make sure below command executed
 
 `$ sudo chmod -R 777 /var/db/lockdown/`
 

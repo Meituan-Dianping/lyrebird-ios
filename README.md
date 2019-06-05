@@ -16,7 +16,6 @@ Lyrebird 是一个基于拦截以及模拟 HTTP/HTTPs 网络请求的面向移�
 - macOS
 - [Python >= 3.6](https://www.python.org/downloads/release/python-360/)
 - [libimobiledevice](https://github.com/libimobiledevice/libimobiledevice)
-- [ideviceinstaller](https://github.com/libimobiledevice/ideviceinstaller)
 - [Command Line Tools for Xcode](https://developer.apple.com/download/more/)
 
 ## 准备
@@ -29,8 +28,6 @@ Lyrebird 是一个基于拦截以及模拟 HTTP/HTTPs 网络请求的面向移�
     ```bash
     brew install --HEAD libimobiledevice
     brew link --overwrite libimobiledevice
-    brew install --HEAD ideviceinstaller
-    brew link --overwrite ideviceinstaller
     sudo chmod -R 777 /var/db/lockdown/
     ```
 
@@ -58,7 +55,7 @@ lyrebird
 
 ## 预览
 
-<img src="./image/home_page.png" style="width:800px">
+![Home Page](./image/plugin-ios.gif)
 
 ## 开发者
 
@@ -84,7 +81,7 @@ lyrebird
 
 ## 常见问题
 #### libimobiledevice 无法使用，终端提示 - "Could not connect to lockdownd ...".
-重新安装 libimobiledevice 和 ideviceinstaller, 然后确保在安装完成后，以下命令被执行
+重新安装 libimobiledevice, 安装完成后执行以下命令
 
 `sudo chmod -R 777 /var/db/lockdown/`
 

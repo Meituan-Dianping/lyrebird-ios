@@ -8,6 +8,7 @@ import lyrebird
 from lyrebird import context
 from lyrebird.log import get_logger
 from . import wda_helper
+from pathlib import Path
 
 _log = get_logger()
 
@@ -66,15 +67,6 @@ def check_environment():
             time.sleep(20)
             _log.debug('ideviceinfo program found but not working with error: %s.' % err)
 
-    if not os.path.exists('/usr/local/bin/ideviceinstaller'):
-        error_msg = {"show_error": True,
-                     "user_message": '<b>No ideviceinstaller program found, '
-                                     'dependencies with Homebrew, See <a href="https://github.com/'
-                                     'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
-                                     'target="_blank">README 常见问题</a></b>'}
-        time.sleep(20)
-        _log.debug("No ideviceinstaller program found.")
-
     if not os.path.exists('/usr/local/bin/idevicescreenshot'):
         error_msg = {"show_error": True,
                      "user_message": '<b>No idevicescreenshot program found, '
@@ -85,7 +77,7 @@ def check_environment():
         _log.debug('No idevicescreenshot program found.')
 
     idevice_id = '/usr/local/bin/idevice_id'
-    ideviceinstaller = '/usr/local/bin/ideviceinstaller'
+    ideviceinstaller = Path(__file__).parent/'bin'/'ideviceinstaller'
     ideviceinfo = '/usr/local/bin/ideviceinfo'
     idevicesyslog = '/usr/local/bin/idevicesyslog'
     idevicescreenshot = '/usr/local/bin/idevicescreenshot'
@@ -266,10 +258,7 @@ class Device:
         plist_path = '%s/%s.plist' % (PLIST_PATH, self.device_id)
         if not os.path.exists(PLIST_PATH):
             os.mkdir(PLIST_PATH)
-        if '-' in device_id:
-            _cmd = f'{ideviceinstaller} -l -o xml > {plist_path}'
-        else:
-            _cmd = f'{ideviceinstaller} -u {self.device_id} -l -o xml > {plist_path}'
+        _cmd = f'{ideviceinstaller} -u {self.device_id} -l -o xml > {plist_path}'
         p = subprocess.Popen(_cmd, shell=True)
         p.wait()
 
