@@ -46,7 +46,7 @@ $ pip3 install lyrebird-ios
 
     
 ## Preview
-![Home Pge](./image/plugin-ios.gif)
+![Home Page](./image/plugin-ios.gif)
 
 ## For developer
 1. Clone repo
@@ -69,7 +69,7 @@ $ pip3 install lyrebird-ios
 
 ## FAQs
 #### Some error occurs like this - "Could not connect to lockdownd ...".
-Re-install both libimobiledevice, and make sure below command executed
+Re-install libimobiledevice, and make sure below command executed
 
 `$ sudo chmod -R 777 /var/db/lockdown/`
 
