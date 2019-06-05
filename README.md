@@ -81,7 +81,7 @@ lyrebird
 
 ## 常见问题
 #### libimobiledevice 无法使用，终端提示 - "Could not connect to lockdownd ...".
-重新安装 libimobiledevice, 然后确保在安装完成后，以下命令被执行
+重新安装 libimobiledevice, 安装完成后执行以下命令
 
 `sudo chmod -R 777 /var/db/lockdown/`
 
