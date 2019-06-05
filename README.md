@@ -13,7 +13,7 @@ Lyrebird 是一个基于拦截以及模拟 HTTP/HTTPs 网络请求的面向移�
 * 在应用管理页面可以快速查看已连接设备的应用信息
 
 ## 环境要求
-- macOS   
+- macOS
 - [Python >= 3.6](https://www.python.org/downloads/release/python-360/)
 - [libimobiledevice](https://github.com/libimobiledevice/libimobiledevice)
 - [Command Line Tools for Xcode](https://developer.apple.com/download/more/)
