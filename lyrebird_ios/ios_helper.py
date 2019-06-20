@@ -302,7 +302,7 @@ class Device:
 
 def devices():
     """
-    
+
     :type    dict
     :return: online_devices object of online devices
     """
