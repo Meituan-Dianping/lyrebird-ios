@@ -1,9 +1,9 @@
 import os
-import plistlib
-import subprocess
-import codecs
 import json
 import time
+import codecs
+import plistlib
+import subprocess
 import lyrebird
 from lyrebird import context
 from lyrebird.log import get_logger
@@ -277,19 +277,19 @@ class Device:
         if not os.path.exists(screenshot_dir):
             os.makedirs(screenshot_dir)
         file_name = self.model.replace(' ', '_')
-        timestrap = int(time.time())
-        screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestrap}.png'))
+        timestamp = int(time.time())
+        screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestamp}.png'))
         p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}',
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err_str = p.stdout.decode()
         if p.returncode == 0:
             return dict({
                 'screen_shot_file': screen_shot_file,
-                'timestrap': timestrap
+                'timestamp': timestamp
             })
         else:
             _log.error(f'{err_str}')
-            return ''
+            return {}
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
@@ -302,9 +302,9 @@ class Device:
 
 def devices():
     """
-    devices 用于返回在线的设备示例集合
-    :type    字典
-    :return: online_devices 对象 (在线的设备)
+    
+    :type    dict
+    :return: online_devices object of online devices
     """
     check_environment()
 
