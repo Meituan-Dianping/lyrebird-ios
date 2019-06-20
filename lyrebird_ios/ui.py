@@ -1,10 +1,10 @@
+import os
+import time
+import codecs
+import socket
+import lyrebird
 from flask import request, jsonify, send_from_directory
 from lyrebird import context
-import lyrebird
-import codecs
-import time
-import os
-import socket
 from lyrebird.log import get_logger
 from .device_service import DeviceService
 
@@ -31,23 +31,6 @@ class MyUI(lyrebird.PluginView):
         """
         return codecs.open(self.get_package_file_path('templates/index.html'), 'r', 'utf-8').read()
 
-    def info(self):
-        """
-        获取设备信息
-        :return:
-        """
-        device_info = {'device': None, 'app': None}
-        if len(device_service.devices) == 0:
-            return jsonify(device_info)
-        device = list(device_service.devices.values())[0]
-        device_prop = device.to_dict()
-        device_info['device'] = {'UDID': device_prop['device_id'], 'Model': device_prop['model'], 'Version': device_prop['os_version']}
-
-        plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
-        default_bundle_id = plugin_conf.get('bundle_id', '')
-        device_info['app'] = device.get_app_info(default_bundle_id)
-        return jsonify(device_info)
-    
     def conf(self):
         plugin_conf = lyrebird.context.application.conf.get('plugin.ios', {})
         default_bundle_id = plugin_conf.get('bundle_id', '')
@@ -60,10 +43,11 @@ class MyUI(lyrebird.PluginView):
         return "\n".join(device_service.devices.get(device_id).device_info)
 
     def get_app_info(self, device_id, bundle_id):
-        device = device_service.devices.get(device_id)
         def send_device_event():
-            device_service.publish_devices_info_event(device, bundle_id)
+            device_service.publish_devices_info_event(device_service.devices, bundle_id)
         lyrebird.add_background_task('SendDeviceEvent', send_device_event)
+
+        device = device_service.devices.get(device_id)
         return jsonify(device.get_app_info(bundle_id))
 
     def app_list(self, device_id):
@@ -77,7 +61,7 @@ class MyUI(lyrebird.PluginView):
     def start_app(self, device_id, bundle_id):
         device = device_service.devices.get(device_id)
         port = lyrebird.context.application.conf.get('mock.port')
-        res = device.start_app(bundle_id, get_ip(), port)
+        res = device.start_app(bundle_id, _get_ip(), port)
         if 'ConnectionResetError' in res and '54' in res:
             return context.make_fail_response('WDA is not ready!')
         return context.make_ok_response()
@@ -96,10 +80,11 @@ class MyUI(lyrebird.PluginView):
     def take_screen_shot(self, device_id):
         device = device_service.devices.get(device_id)
         img_info = device.take_screen_shot()
-        timestrap = img_info.get('timestrap')
+        timestamp = img_info.get('timestamp')
         if img_info.get('screen_shot_file'):
-            test = {'imgUrl': f'/ui/plugin/iOS/api/src/screenshot/{device_id}?time={timestrap}'}
-            return jsonify(test)
+            return jsonify({
+                'imgUrl': f'/ui/plugin/iOS/api/src/screenshot/{device_id}?time={timestamp}'
+            })
         else:
             return context.make_fail_response('Could not start screenshot service! '
                                               'Please make sure the idevicescreenshot command works correctly')
@@ -128,8 +113,8 @@ class MyUI(lyrebird.PluginView):
     def get_screenshot_image(self, device_id):
         if request.args.get('time'):
             model = device_service.devices.get(device_id).model.replace(' ', '_')
-            timestrap = request.args.get('time')
-            return send_from_directory(screenshot_dir, f'{model}_{timestrap}.png')
+            timestamp = request.args.get('time')
+            return send_from_directory(screenshot_dir, f'{model}_{timestamp}.png')
         else:
             return None
 
@@ -153,32 +138,12 @@ class MyUI(lyrebird.PluginView):
         from .ios_helper import error_msg
         return jsonify(error_msg)
 
-    def desc(self):
-        device_info = self.info().json
-        if device_info.get('device'):
-            return jsonify({
-                "code": 0,
-                "data": "\n\n【设备应用信息】\n" +
-                        "设备类型： %s\n" % device_info.get('device').get('Model') +
-                        "设备系统： %s\n\n" % device_info.get('device').get('Version') +
-                        "应用名称： %s\n" % device_info.get('app').get('AppName') +
-                        "Version：  %s\n" % device_info.get('app').get('VersionNumber') +
-                        "Build： %s\n" % device_info.get('app').get('BuildNumber') +
-                        "BundleID： %s" % device_info.get('app').get('BundleID')
-            })
-        else:
-            return context.make_fail_response('No device found, is it plugged in?')
-
     def on_create(self):
         """
         插件初始化函数（必选）
         """
         # 设置模板目录（可选，设置模板文件目录。默认值templates）
 
-        # for overbridge
-        self.add_url_rule('/api/info', view_func=self.info)
-        # for Bugit
-        self.add_url_rule('/api/desc', view_func=self.desc)
         # 获取设备列表
         self.add_url_rule('/api/devices', view_func=self.device_list)
         # 设备详情
@@ -215,12 +180,12 @@ class MyUI(lyrebird.PluginView):
         return 'iOS'
 
 
-def get_ip():
+def _get_ip():
     """
     获取当前设备在网络中的ip地址
 
     :return: IP地址字符串
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('google.com', 80))
+    s.connect(('bing.com', 80))
     return s.getsockname()[0]

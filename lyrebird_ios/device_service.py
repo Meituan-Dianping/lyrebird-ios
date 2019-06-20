@@ -1,8 +1,8 @@
 import os
 import shutil
 import lyrebird
-from lyrebird import context
 from . import ios_helper
+from lyrebird import context
 from lyrebird.log import get_logger
 
 _log = get_logger()
@@ -57,10 +57,9 @@ class DeviceService:
 
     def publish_devices_info_event(self, online_devices, app_name):
         devices = []
-        for item in online_devices:
-            device_info = online_devices[item]
+        for device_id, device_info in online_devices.items():
             message_info = {
-                'id': device_info.device_id,
+                'id': device_id,
                 'info': {
                     'name': device_info.device_name,
                     'model': device_info.model,
