@@ -8,7 +8,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lyrebird-ios',
-    version='0.2.9',
+    version='0.3.0',
     packages=['lyrebird_ios'],
     url='https://github.com/meituan/lyrebird-ios',
     author='HBQA',
@@ -23,10 +23,8 @@ setup(
         "Operating System :: MacOS",
     ),
     entry_points={
-        'console_scripts': [
-        ],
-        'lyrebird_web': [
-            'iOS = lyrebird_ios.ui:MyUI'
+        'lyrebird_plugin': [
+            'ios = lyrebird_ios.manifest'
         ]
     },
     install_requires=[
