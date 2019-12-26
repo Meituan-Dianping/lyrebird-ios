@@ -5,7 +5,7 @@ import iView from 'iview'
 import 'iview/dist/styles/iview.css'
 import locale from 'iview/dist/locale/en-US'
 import io from 'socket.io-client'
-import {bus} from './eventbus'
+import { bus } from './eventbus'
 
 Vue.config.productionTip = false
 Vue.use(iView, { locale })

@@ -19,7 +19,7 @@ def conf():
     plugin_conf = application.config.get('plugin.ios', {})
     default_bundle_id = plugin_conf.get('bundle_id', '')
     return make_ok_response(bundle_id=default_bundle_id)
-    
+
 def device_list():
     device_list = device_service.devices_to_dict()
     return make_ok_response(device_list=device_list)
