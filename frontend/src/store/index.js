@@ -105,7 +105,6 @@ export default new Vuex.Store({
         })
     },
     loadPackageInfo ({ state, commit }) {
-      console.log('loadPackageInfo')
       commit('setIsLoadingPackageInfo', true)
       api.getAppInfo(state.focusDeviceId, state.focusPackageName)
         .then(response => {
