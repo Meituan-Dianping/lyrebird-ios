@@ -205,7 +205,6 @@ class Device:
         try:
             ios_driver.start_app()
         except Exception as e:
-            pass
             return str(e)
         return ''
 
@@ -213,7 +212,6 @@ class Device:
         try:
             ios_driver.stop_app()
         except AttributeError as e:
-            pass
             return str(e)
         return ''
 
