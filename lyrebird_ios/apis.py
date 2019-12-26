@@ -8,12 +8,7 @@ from .device_service import DeviceService
 
 device_service = DeviceService()
 storage = lyrebird.get_plugin_storage()
-tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
-anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
-
-if not os.path.exists(tmp_dir):
-    os.makedirs(tmp_dir)
 
 def conf():
     plugin_conf = application.config.get('plugin.ios', {})

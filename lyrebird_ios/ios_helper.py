@@ -17,26 +17,14 @@ idevicescreenshot = None
 ideviceinfo = None
 
 root = os.path.dirname(__file__)
-static = os.path.abspath(os.path.join(root, 'static'))
 model_json = os.path.abspath(os.path.join(root, 'config/comparison_table_model.json'))
 storage = lyrebird.get_plugin_storage()
-
-tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
-crash_dir = os.path.abspath(os.path.join(storage, 'crash'))
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 PLIST_PATH = os.path.join(storage, 'plist')
 error_msg = None
 
 ios_driver = wda_helper.Helper()
-
-if not os.path.exists(tmp_dir):
-    os.makedirs(tmp_dir)
-
-
-if not os.path.exists(crash_dir):
-    os.makedirs(crash_dir)
-
 
 def check_environment():
     """
