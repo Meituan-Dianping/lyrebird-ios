@@ -55,7 +55,7 @@ lyrebird
 
 ## 预览
 
-![Home Page](./image/plugin-ios.gif)
+![Home Page](./image/iOS.png)
 
 ## 开发者
 

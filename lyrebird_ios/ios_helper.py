@@ -5,26 +5,20 @@ import codecs
 import plistlib
 import subprocess
 import lyrebird
-from lyrebird import context
 from lyrebird.log import get_logger
 from . import wda_helper
 from pathlib import Path
 
 _log = get_logger()
 
-ideviceinstaller = None
+ideviceinstaller = Path(__file__).parent/'bin'/'ideviceinstaller'
 idevice_id = None
 idevicescreenshot = None
 ideviceinfo = None
-idevicesyslog = None
 
 root = os.path.dirname(__file__)
-static = os.path.abspath(os.path.join(root, 'static'))
 model_json = os.path.abspath(os.path.join(root, 'config/comparison_table_model.json'))
 storage = lyrebird.get_plugin_storage()
-
-tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
-crash_dir = os.path.abspath(os.path.join(storage, 'crash'))
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 PLIST_PATH = os.path.join(storage, 'plist')
@@ -32,58 +26,27 @@ error_msg = None
 
 ios_driver = wda_helper.Helper()
 
-if not os.path.exists(tmp_dir):
-    os.makedirs(tmp_dir)
-
-
-if not os.path.exists(crash_dir):
-    os.makedirs(crash_dir)
-
-
 def check_environment():
     """
     检查用户环境，第三方依赖是否正确安装。
     :return:
     """
-    global ideviceinstaller, idevice_id, idevicescreenshot, ideviceinfo, idevicesyslog, error_msg
+    global idevice_id, idevicescreenshot, ideviceinfo, error_msg
 
     if not os.path.exists('/usr/local/bin/ideviceinfo'):
-        error_msg = {"show_error": True,
-                     "user_message": '<b>No ideviceinfo program found, need libimobiledevice '
-                                     'dependencies with Homebrew, See <a href="https://github.com/'
-                                     'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
-                                     'target="_blank">README 常见问题</a></b>'}
-        time.sleep(20)
-        _log.debug('No libimobiledevice program found.')
+         _log.error('ideviceinfo command not found, check your libimobiledevice')
     else:
         p = subprocess.Popen('/usr/local/bin/ideviceinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err = p.stderr.read().decode()
         if len(err):
-            error_msg = {"show_error": True,
-                         "user_message": '<b>ideviceinfo program found but not working with error, '
-                                         'See <a href="https://github.com/'
-                                         'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
-                                         'target="_blank">README 常见问题</a></b>'}
-            time.sleep(20)
-            _log.debug('ideviceinfo program found but not working with error: %s.' % err)
+            _log.error(f'Something wrong with the ideviceinfo program: {err}')
 
     if not os.path.exists('/usr/local/bin/idevicescreenshot'):
-        error_msg = {"show_error": True,
-                     "user_message": '<b>No idevicescreenshot program found, '
-                                     'dependencies with Homebrew, See <a href="https://github.com/'
-                                     'meituan/lyrebird-ios#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" '
-                                     'target="_blank">README 常见问题</a></b>'}
-        time.sleep(20)
-        _log.debug('No idevicescreenshot program found.')
+        _log.debug('ideviceinfo command not found, check your libimobiledevice')
 
     idevice_id = '/usr/local/bin/idevice_id'
-    ideviceinstaller = Path(__file__).parent/'bin'/'ideviceinstaller'
     ideviceinfo = '/usr/local/bin/ideviceinfo'
-    idevicesyslog = '/usr/local/bin/idevicesyslog'
     idevicescreenshot = '/usr/local/bin/idevicescreenshot'
-
-    error_msg = {"show_error": False, "user_message": ""}
-
 
 def read_plist(plist_path):
     return plistlib.readPlist(plist_path)
@@ -135,7 +98,6 @@ class Apps:
             tmp = {}
             tmp["app_name"] = app.get('CFBundleName')
             tmp['bundle_id'] = app.get('CFBundleIdentifier')
-            tmp['label'] = '%s %s' % (app.get('CFBundleName'), app.get('CFBundleIdentifier'))
             app_list.append(tmp)
         return app_list
 
@@ -231,7 +193,6 @@ class Device:
         try:
             ios_driver.start_app()
         except Exception as e:
-            pass
             return str(e)
         return ''
 
@@ -239,9 +200,8 @@ class Device:
         try:
             ios_driver.stop_app()
         except AttributeError as e:
-            pass
             return str(e)
-        return
+        return ''
 
     def get_properties(self):
         p = subprocess.run(f'{ideviceinfo} -u {self.device_id}', shell=True, stdout=subprocess.PIPE)
@@ -281,15 +241,13 @@ class Device:
         screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestamp}.png'))
         p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}',
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        err_str = p.stdout.decode()
-        if p.returncode == 0:
-            return dict({
-                'screen_shot_file': screen_shot_file,
-                'timestamp': timestamp
-            })
-        else:
-            _log.error(f'{err_str}')
-            return {}
+        result = {
+            'returncode': p.returncode,
+            'result': p,
+            'screen_shot_file': screen_shot_file,
+            'timestamp': timestamp
+        }
+        return result
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
@@ -312,7 +270,7 @@ def devices():
     output = res.stdout.decode()
     err_str = res.stderr.decode()
 
-    # 命令执行异常
+    # Get devices error
     if len(output) <= 0 < len(err_str):
         print('Get devices list error', err_str)
         return []

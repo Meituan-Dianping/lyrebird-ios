@@ -46,7 +46,7 @@ $ pip3 install lyrebird-ios
 
     
 ## Preview
-![Home Page](./image/plugin-ios.gif)
+![Home Page](./image/iOS.png)
 
 ## For developer
 1. Clone repo

@@ -46,7 +46,7 @@ class DeviceService:
 
         self.devices = devices
         self.publish_devices_info_event(self.devices, self.get_default_app_name())
-        context.application.socket_io.emit('device', namespace='/iOS-plugin')
+        lyrebird.emit('device_ios')
 
     def start_log_recorder(self, device_id):
         for _device_id in self.devices:
@@ -55,7 +55,8 @@ class DeviceService:
             else:
                 self.devices[_device_id].stop_log()
 
-    def publish_devices_info_event(self, online_devices, app_name):
+    @staticmethod
+    def publish_devices_info_event(online_devices, app_name):
         devices = []
         for device_id, device_info in online_devices.items():
             message_info = {
