@@ -5,7 +5,6 @@ import codecs
 import plistlib
 import subprocess
 import lyrebird
-from lyrebird import context
 from lyrebird.log import get_logger
 from . import wda_helper
 from pathlib import Path

@@ -12,7 +12,7 @@ class Helper:
     def start_app(self, *args, **env):
         """
 
-        required: 
+        required:
         - bundle_id(string): app bundle id
         """
         self.client = wda.Client()

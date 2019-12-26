@@ -55,7 +55,8 @@ class DeviceService:
             else:
                 self.devices[_device_id].stop_log()
 
-    def publish_devices_info_event(self, online_devices, app_name):
+    @staticmethod
+    def publish_devices_info_event(online_devices, app_name):
         devices = []
         for device_id, device_info in online_devices.items():
             message_info = {

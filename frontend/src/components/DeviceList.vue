@@ -31,10 +31,12 @@ export default {
   },
   methods: {
     onCellClick (deviceId) {
-      this.$store.commit('setFocusDeviceId', deviceId)
-      this.$store.commit('setDeviceInfo', this.devices[deviceId])
-      this.$store.dispatch('loadPackages')
-      this.$store.dispatch('takeScreenShot')
+      if (this.focusDeviceId !== deviceId) {
+        this.$store.commit('setFocusDeviceId', deviceId)
+        this.$store.commit('setDeviceInfo', this.devices[deviceId])
+        this.$store.dispatch('loadPackages')
+        this.$store.dispatch('takeScreenShot')
+      }
     },
     takeScreenShot (deviceName) {
       if (this.focusDeviceId) {

@@ -5,7 +5,7 @@ manifest(
     id='ios',
     name='iOS',
     api=[
-        # get devices 
+        # get devices
         ('/api/devices', apis.device_list, ['GET']),
         # get device information
         ('/api/device/<string:device_id>', apis.device_detail, ['GET']),
