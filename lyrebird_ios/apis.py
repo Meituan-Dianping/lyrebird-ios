@@ -111,9 +111,9 @@ def check_env():
 
 def _get_ip():
     """
-    获取当前设备在网络中的ip地址
+    Get ip address
 
-    :return: IP地址字符串
+    :return: IP
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('bing.com', 80))
