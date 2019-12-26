@@ -9,7 +9,6 @@ class Helper:
         self.environment = None
         self.session = None
 
-    # def start_app(self, bundle_id, *args, **env):
     def start_app(self, *args, **env):
         """
 

@@ -5,25 +5,25 @@ manifest(
     id='ios',
     name='iOS',
     api=[
-        # 获取设备列表
+        # get devices 
         ('/api/devices', apis.device_list, ['GET']),
-        # 设备详情
+        # get device information
         ('/api/device/<string:device_id>', apis.device_detail, ['GET']),
-        # 获取app详情
+        # get application information
         ('/api/apps/<string:device_id>/<string:bundle_id>', apis.get_app_info, ['GET']),
-        # 进行截图
+        # take screenshot
         ('/api/screenshot/<string:device_id>', apis.take_screen_shot, ['GET']),
-        # 获取截图
+        # get screenshot
         ('/api/src/screenshot/<string:device_id>', apis.get_screenshot_image, ['GET']),
-        # 启动应用
+        # start applicaton
         ('/api/start_app/<string:device_id>/<string:bundle_id>', apis.start_app, ['GET']),
-        # 关闭应用
+        # stop application
         ('/api/stop_app/<string:device_id>/<string:bundle_id>', apis.stop_app, ['GET']),
-        # 获取设备应用列表
+        # get application list
         ('/api/apps/<string:device_id>', apis.app_list, ['GET']),
-        # 检查环境
+        # environment check
         ('/api/check-env', apis.check_env, ['GET']),
-        # 获取默认配置
+        # get config
         ('/api/conf', apis.conf, ['GET'])
     ],
     background=[

@@ -285,7 +285,7 @@ def devices():
     output = res.stdout.decode()
     err_str = res.stderr.decode()
 
-    # 命令执行异常
+    # Get devices error
     if len(output) <= 0 < len(err_str):
         print('Get devices list error', err_str)
         return []
