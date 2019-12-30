@@ -89,6 +89,7 @@ class DeviceService:
         default_bundle_id = plugin_conf.get('bundle_id', '')
         return default_bundle_id
 
-    def reset_screenshot_dir(self):
+    @staticmethod
+    def reset_screenshot_dir():
         if os.path.exists(ios_helper.screenshot_dir):
             shutil.rmtree(ios_helper.screenshot_dir)
