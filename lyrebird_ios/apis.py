@@ -98,8 +98,11 @@ def get_screenshot_image(device_id):
         return None
 
 def check_env():
-    from .ios_helper import error_msg
-    return jsonify(error_msg)
+    msg = device_service.check_env()
+    if device_service.status == device_service.RUNNING:
+        return make_ok_response()
+    else:
+        return make_fail_response(msg)
 
 
 def _get_ip():

@@ -22,7 +22,7 @@ manifest(
         # get application list
         ('/api/apps/<string:device_id>', apis.app_list, ['GET']),
         # environment check
-        ('/api/check-env', apis.check_env, ['GET']),
+        ('/api/check_env', apis.check_env, ['GET']),
         # get config
         ('/api/conf', apis.conf, ['GET'])
     ],
