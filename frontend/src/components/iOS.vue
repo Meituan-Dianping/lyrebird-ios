@@ -24,6 +24,7 @@ import DeviceList from '@/components/DeviceList.vue'
 import DeviceInfo from '@/components/DeviceInfo.vue'
 import ScreenShot from '@/components/ScreenShot.vue'
 import PackageInfo from '@/components/PackageInfo.vue'
+import { checkEnv } from '@/api'
 
 export default {
   components: {
@@ -38,8 +39,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('loadDevices')
-    this.$io.on('device_ios', this.getDevices)
+    this.checkEnvironment()
     this.$bus.$on('msg.success', this.successMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
@@ -50,6 +50,16 @@ export default {
     }
   },
   methods: {
+    checkEnvironment () {
+      checkEnv()
+        .then(
+          this.$store.dispatch('loadDevices'),
+          this.$io.on('ios-device', this.getDevices)
+        )
+        .catch(error => {
+          this.$bus.$emit('msg.error', error.data.message)
+        })
+    },
     getDevices () {
       this.$store.dispatch('loadDevices')
     },

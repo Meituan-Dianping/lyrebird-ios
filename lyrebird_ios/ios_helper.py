@@ -22,7 +22,6 @@ storage = lyrebird.get_plugin_storage()
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 PLIST_PATH = os.path.join(storage, 'plist')
-error_msg = None
 
 ios_driver = wda_helper.Helper()
 
@@ -31,18 +30,18 @@ def check_environment():
     检查用户环境，第三方依赖是否正确安装。
     :return:
     """
-    global idevice_id, idevicescreenshot, ideviceinfo, error_msg
+    global idevice_id, idevicescreenshot, ideviceinfo
 
     if not os.path.exists('/usr/local/bin/ideviceinfo'):
-         _log.error('ideviceinfo command not found, check your libimobiledevice')
+        return 'ideviceinfo command not found, check your libimobiledevice'
     else:
         p = subprocess.Popen('/usr/local/bin/ideviceinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err = p.stderr.read().decode()
         if len(err):
-            _log.error(f'Something wrong with the ideviceinfo program: {err}')
+            return f'Something wrong with the ideviceinfo program: {err}'
 
     if not os.path.exists('/usr/local/bin/idevicescreenshot'):
-        _log.debug('ideviceinfo command not found, check your libimobiledevice')
+        return 'ideviceinfo command not found, check your libimobiledevice'
 
     idevice_id = '/usr/local/bin/idevice_id'
     ideviceinfo = '/usr/local/bin/ideviceinfo'
@@ -264,8 +263,6 @@ def devices():
     :type    dict
     :return: online_devices object of online devices
     """
-    check_environment()
-
     res = subprocess.run(f'{idevice_id} -l', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = res.stdout.decode()
     err_str = res.stderr.decode()

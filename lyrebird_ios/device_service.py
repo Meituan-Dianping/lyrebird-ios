@@ -22,6 +22,16 @@ class DeviceService:
         self.devices = {}
         self.reset_screenshot_dir()
 
+    def check_env(self):
+        error_message = ios_helper.check_environment()
+        if not error_message:
+            self.status = self.RUNNING
+            _log.debug('iOS device listener start')
+        else:
+            self.status = self.STOP
+            _log.error(error_message)
+            return error_message
+
     def devices_to_dict(self):
         json_obj = {}
         for device_id in self.devices:
@@ -29,7 +39,7 @@ class DeviceService:
         return json_obj
 
     def run(self):
-        self.status = self.RUNNING
+        self.check_env()
         while self.status == self.RUNNING:
             try:
                 self.handle()
@@ -46,7 +56,7 @@ class DeviceService:
 
         self.devices = devices
         self.publish_devices_info_event(self.devices, self.get_default_app_name())
-        lyrebird.emit('device_ios')
+        lyrebird.emit('ios-device')
 
     def start_log_recorder(self, device_id):
         for _device_id in self.devices:
