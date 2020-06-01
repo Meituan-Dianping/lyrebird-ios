@@ -211,3 +211,4 @@ npm run build
 
 #### 截取屏幕快照功能无法正常工作，提示 Could not start screenshot service!
 在连接设备之前您必须确保开发者选项可用。通过 [stackoverflow](https://stackoverflow.com/questions/30736932/xcode-error-could-not-find-developer-disk-image) 获取更多解决帮助。
+
