@@ -88,8 +88,8 @@ class DeviceService:
                         'build': app_info['BuildNumber'],
                         'packageName': app_info['BundleID']
                     }
-            except Exception:
-                _log.error('Can\'t read app info')
+            except Exception as e:
+                _log.error(f'Read app info error: {e}')
 
         lyrebird.publish('ios.device', devices, state=True)
 
