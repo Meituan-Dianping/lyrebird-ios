@@ -24,9 +24,7 @@ class DeviceService:
 
     def check_env(self):
         try:
-            warning_message = ios_helper.check_environment()
-            if warning_message:
-                _log.error(warning_message)
+            ios_helper.check_environment()
             self.status = self.RUNNING
             _log.debug('iOS device listener start')
         except Exception as e:

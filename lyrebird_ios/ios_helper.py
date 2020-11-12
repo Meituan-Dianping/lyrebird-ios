@@ -81,7 +81,7 @@ def check_environment():
         env_err_msg.append(err_msg)
         idevicescreenshot = None
 
-    return 'iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg)
+    _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
 
 def check_environment_item(command, path):
     if not Path(path).exists():
