@@ -12,6 +12,7 @@ from pathlib import Path
 _log = get_logger()
 
 ideviceinstaller = Path(__file__).parent/'bin'/'ideviceinstaller'
+# Version of `bin/ideviceinstaller` is v1.1.1
 idevice_id = None
 idevicescreenshot = None
 ideviceinfo = None
