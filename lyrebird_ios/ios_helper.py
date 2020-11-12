@@ -66,7 +66,7 @@ def check_environment():
     lib_version = libimobiledevice_info[0].get('versions', {}).get('stable')
     lib_version = '1.2.0' if version.parse(lib_version) < version.parse('1.3.0') else '1.3.0'
 
-    ideviceinstaller_keywords = 'ideviceinstallerr'
+    ideviceinstaller_keywords = 'ideviceinstaller'
     ideviceinstaller = Path(__file__).parent/'bin'/lib_version/ideviceinstaller_keywords
     err_msg = check_environment_item(ideviceinstaller_keywords, ideviceinstaller)
     if err_msg:
@@ -74,14 +74,15 @@ def check_environment():
         ideviceinstaller = None
 
     # Check idevicescreenshot, action when unavailable : warning
-    idevicescreenshot_keywords = 'idevicescreenshotd'
+    idevicescreenshot_keywords = 'idevicescreenshot'
     idevicescreenshot = SYSTEM_BIN/idevicescreenshot_keywords
     err_msg = check_environment_item(idevicescreenshot_keywords, idevicescreenshot)
     if err_msg:
         env_err_msg.append(err_msg)
         idevicescreenshot = None
 
-    _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
+    if env_err_msg:
+        _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
 
 def check_environment_item(command, path):
     if not Path(path).exists():

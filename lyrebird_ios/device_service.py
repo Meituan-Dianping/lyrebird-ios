@@ -1,6 +1,7 @@
 import os
 import shutil
 import lyrebird
+import traceback
 from . import ios_helper
 from lyrebird import context
 from lyrebird.log import get_logger
@@ -29,8 +30,7 @@ class DeviceService:
             _log.debug('iOS device listener start')
         except Exception as e:
             self.status = self.STOP
-            msg = e.args[0]
-            _log.error(msg)
+            _log.error(f'iOS plugin stoped!\n {traceback.format_exc()}')
 
     def devices_to_dict(self):
         json_obj = {}
