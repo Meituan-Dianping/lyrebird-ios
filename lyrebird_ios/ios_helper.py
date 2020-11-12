@@ -3,6 +3,7 @@ import json
 import time
 import codecs
 import plistlib
+import tempfile
 import subprocess
 from pathlib import Path
 from packaging import version
@@ -76,7 +77,8 @@ def check_environment():
     # Check idevicescreenshot, action when unavailable : warning
     idevicescreenshot_keywords = 'idevicescreenshot'
     idevicescreenshot = SYSTEM_BIN/idevicescreenshot_keywords
-    err_msg = check_environment_item(idevicescreenshot_keywords, idevicescreenshot)
+    temp_file = tempfile.NamedTemporaryFile().name
+    err_msg = check_environment_item(idevicescreenshot_keywords, idevicescreenshot, sub_command=temp_file)
     if err_msg:
         env_err_msg.append(err_msg)
         idevicescreenshot = None
@@ -84,12 +86,12 @@ def check_environment():
     if env_err_msg:
         _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
 
-def check_environment_item(command, path):
+def check_environment_item(command, path, sub_command=''):
     if not Path(path).exists():
         return f'Command `{command}` not found, check your libimobiledevice'
 
-    p = subprocess.Popen(str(path), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    err_str = p.stderr.read().decode()
+    p = subprocess.run(f'{str(path)} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    err_str = p.stderr.decode()
     return f'Execute command `{command}` error: {err_str}' if err_str else ''
 
 def read_plist(plist_path):
