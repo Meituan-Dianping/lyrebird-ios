@@ -28,7 +28,7 @@ class DeviceService:
             ios_helper.check_environment()
             self.status = self.RUNNING
             _log.debug('iOS device listener start')
-        except Exception as e:
+        except Exception:
             self.status = self.STOP
             _log.error(f'iOS plugin stoped!\n {traceback.format_exc()}')
 
