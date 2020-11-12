@@ -23,14 +23,16 @@ class DeviceService:
         self.reset_screenshot_dir()
 
     def check_env(self):
-        error_message = ios_helper.check_environment()
-        if not error_message:
+        try:
+            warning_message = ios_helper.check_environment()
+            if warning_message:
+                _log.error(warning_message)
             self.status = self.RUNNING
             _log.debug('iOS device listener start')
-        else:
+        except Exception as e:
             self.status = self.STOP
-            _log.error(error_message)
-            return error_message
+            msg = e.args[0]
+            _log.error(msg)
 
     def devices_to_dict(self):
         json_obj = {}
