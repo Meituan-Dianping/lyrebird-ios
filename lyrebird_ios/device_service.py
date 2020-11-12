@@ -44,8 +44,8 @@ class DeviceService:
             try:
                 self.handle()
                 context.application.socket_io.sleep(self.handle_interval)
-            except Exception as e:
-                _log.error(e)
+            except Exception:
+                _log.error(f'iOS plugin error!\n {traceback.format_exc()}')
         self.status = self.STOP
 
     def handle(self):
