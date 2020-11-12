@@ -88,8 +88,8 @@ def check_environment_item(command, path):
     if not Path(path).exists():
         return f'Command `{command}` not found, check your libimobiledevice'
 
-    p = subprocess.run(str(path), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    err_str = p.stderr.decode()
+    p = subprocess.Popen(str(path), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    err_str = p.stderr.read().decode()
     return f'Execute command `{command}` error: {err_str}' if err_str else ''
 
 def read_plist(plist_path):
