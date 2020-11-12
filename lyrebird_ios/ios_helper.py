@@ -12,12 +12,7 @@ from . import wda_helper
 
 _log = get_logger()
 
-<<<<<<< Updated upstream
-ideviceinstaller = Path(__file__).parent/'bin'/'ideviceinstaller'
-# Version of `bin/ideviceinstaller` is v1.1.1
-=======
 ideviceinstaller = None
->>>>>>> Stashed changes
 idevice_id = None
 idevicescreenshot = None
 ideviceinfo = None
