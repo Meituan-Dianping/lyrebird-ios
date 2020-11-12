@@ -261,6 +261,8 @@ class Device:
         plist_path = '%s/%s.plist' % (PLIST_PATH, self.device_id)
         if not os.path.exists(PLIST_PATH):
             os.mkdir(PLIST_PATH)
+        if not ideviceinstaller:
+            raise IdeviceinstallerError('Command `ideviceinstaller` is not ready! Check your libimobiledevice')
         _cmd = f'{ideviceinstaller} -u {self.device_id} -l -o xml > {plist_path}'
         p = subprocess.Popen(_cmd, shell=True)
         p.wait()
@@ -327,6 +329,10 @@ def devices():
 
 
 class LibmobiledeviceError(Exception):
+    pass
+
+
+class IdeviceinstallerError(Exception):
     pass
 
 
