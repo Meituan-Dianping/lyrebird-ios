@@ -30,5 +30,12 @@ setup(
     install_requires=[
         'lyrebird',
         'facebook-wda==0.8.1'
-    ]
+    ],
+    extras_require={
+        'dev': [
+            "autopep8",
+            "pylint",
+            "pytest"
+        ]
+    }
 )

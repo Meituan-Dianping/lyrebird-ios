@@ -1,2 +1,1 @@
-lyrebird
-facebook-wda
+-e .[dev]
