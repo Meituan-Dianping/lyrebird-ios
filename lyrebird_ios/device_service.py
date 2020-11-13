@@ -1,6 +1,7 @@
 import os
 import shutil
 import lyrebird
+import traceback
 from . import ios_helper
 from lyrebird import context
 from lyrebird.log import get_logger
@@ -23,14 +24,13 @@ class DeviceService:
         self.reset_screenshot_dir()
 
     def check_env(self):
-        error_message = ios_helper.check_environment()
-        if not error_message:
+        try:
+            ios_helper.check_environment()
             self.status = self.RUNNING
             _log.debug('iOS device listener start')
-        else:
+        except Exception:
             self.status = self.STOP
-            _log.error(error_message)
-            return error_message
+            _log.error(f'iOS plugin stoped!\n {traceback.format_exc()}')
 
     def devices_to_dict(self):
         json_obj = {}
@@ -44,8 +44,8 @@ class DeviceService:
             try:
                 self.handle()
                 context.application.socket_io.sleep(self.handle_interval)
-            except Exception as e:
-                _log.error(e)
+            except Exception:
+                _log.error(f'iOS plugin error!\n {traceback.format_exc()}')
         self.status = self.STOP
 
     def handle(self):
@@ -89,7 +89,7 @@ class DeviceService:
                         'packageName': app_info['BundleID']
                     }
             except Exception:
-                _log.error('Can\'t read app info')
+                _log.error(f'Read app info error!\n {traceback.format_exc()}')
 
         lyrebird.publish('ios.device', devices, state=True)
 

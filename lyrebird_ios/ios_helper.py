@@ -3,15 +3,17 @@ import json
 import time
 import codecs
 import plistlib
+import tempfile
 import subprocess
+from pathlib import Path
+from packaging import version
 import lyrebird
 from lyrebird.log import get_logger
 from . import wda_helper
-from pathlib import Path
 
 _log = get_logger()
 
-ideviceinstaller = Path(__file__).parent/'bin'/'ideviceinstaller'
+ideviceinstaller = None
 idevice_id = None
 idevicescreenshot = None
 ideviceinfo = None
@@ -22,6 +24,7 @@ storage = lyrebird.get_plugin_storage()
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 PLIST_PATH = os.path.join(storage, 'plist')
+SYSTEM_BIN = Path('/usr/local/bin')
 
 ios_driver = wda_helper.Helper()
 
@@ -30,22 +33,66 @@ def check_environment():
     检查用户环境，第三方依赖是否正确安装。
     :return:
     """
-    global idevice_id, idevicescreenshot, ideviceinfo
+    global ideviceinstaller, idevice_id, idevicescreenshot, ideviceinfo
 
-    if not os.path.exists('/usr/local/bin/ideviceinfo'):
-        return 'ideviceinfo command not found, check your libimobiledevice'
-    else:
-        p = subprocess.Popen('/usr/local/bin/ideviceinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        err = p.stderr.read().decode()
-        if len(err):
-            return f'Something wrong with the ideviceinfo program: {err}'
+    # Check libmobiledevice, action when unavailable : block
+    p = subprocess.run('brew info --json libimobiledevice', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    code, output, err_str = p.returncode, p.stdout.decode(), p.stderr.decode()
+    if err_str or code or not output:
+        raise LibmobiledeviceError(f'Get libmobiledevice info error: {err_str}')
 
-    if not os.path.exists('/usr/local/bin/idevicescreenshot'):
-        return 'ideviceinfo command not found, check your libimobiledevice'
+    libimobiledevice_info = json.loads(output)
+    if not isinstance(libimobiledevice_info, list) and not len(libimobiledevice_info):
+        raise LibmobiledeviceError(f'Get unknown libmobiledevice info: {output}')
 
-    idevice_id = '/usr/local/bin/idevice_id'
-    ideviceinfo = '/usr/local/bin/ideviceinfo'
-    idevicescreenshot = '/usr/local/bin/idevicescreenshot'
+    # Check idevice_id, action when unavailable : block
+    idevice_id_keywords = 'idevice_id'
+    idevice_id = SYSTEM_BIN/idevice_id_keywords
+    err_msg = check_environment_item(idevice_id_keywords, idevice_id)
+    if err_msg:
+        idevice_id = None
+        raise IdeviceidError(err_msg)
+
+    # Check ideviceinfo, action when unavailable : block
+    ideviceinfo_keywords = 'ideviceinfo'
+    ideviceinfo = SYSTEM_BIN/ideviceinfo_keywords
+    err_msg = check_environment_item(ideviceinfo_keywords, ideviceinfo)
+    if err_msg:
+        ideviceinfo = None
+        raise IdeviceinfoError(err_msg)
+
+    env_err_msg = []
+
+    # Check ideviceinstaller, action when unavailable : warning
+    lib_version = libimobiledevice_info[0].get('versions', {}).get('stable')
+    lib_version = '1.2.0' if version.parse(lib_version) < version.parse('1.3.0') else '1.3.0'
+
+    ideviceinstaller_keywords = 'ideviceinstaller'
+    ideviceinstaller = Path(__file__).parent/'bin'/lib_version/ideviceinstaller_keywords
+    err_msg = check_environment_item(ideviceinstaller_keywords, ideviceinstaller)
+    if err_msg:
+        env_err_msg.append(err_msg)
+        ideviceinstaller = None
+
+    # Check idevicescreenshot, action when unavailable : warning
+    idevicescreenshot_keywords = 'idevicescreenshot'
+    idevicescreenshot = SYSTEM_BIN/idevicescreenshot_keywords
+    temp_file = tempfile.NamedTemporaryFile().name
+    err_msg = check_environment_item(idevicescreenshot_keywords, idevicescreenshot, sub_command=temp_file)
+    if err_msg:
+        env_err_msg.append(err_msg)
+        idevicescreenshot = None
+
+    if env_err_msg:
+        _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
+
+def check_environment_item(command, path, sub_command=''):
+    if not Path(path).exists():
+        return f'Command `{command}` not found, check your libimobiledevice'
+
+    p = subprocess.run(f'{str(path)} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    err_str = p.stderr.decode()
+    return f'Execute command `{command}` error: {err_str}' if err_str else ''
 
 def read_plist(plist_path):
     return plistlib.readPlist(plist_path)
@@ -217,6 +264,8 @@ class Device:
         plist_path = '%s/%s.plist' % (PLIST_PATH, self.device_id)
         if not os.path.exists(PLIST_PATH):
             os.mkdir(PLIST_PATH)
+        if not ideviceinstaller:
+            raise IdeviceinstallerError('Command `ideviceinstaller` is not ready! Check your libimobiledevice')
         _cmd = f'{ideviceinstaller} -u {self.device_id} -l -o xml > {plist_path}'
         p = subprocess.Popen(_cmd, shell=True)
         p.wait()
@@ -280,3 +329,19 @@ def devices():
         online_devices[device.device_id] = device
 
     return online_devices
+
+
+class LibmobiledeviceError(Exception):
+    pass
+
+
+class IdeviceinstallerError(Exception):
+    pass
+
+
+class IdeviceidError(Exception):
+    pass
+
+
+class IdeviceinfoError(Exception):
+    pass
