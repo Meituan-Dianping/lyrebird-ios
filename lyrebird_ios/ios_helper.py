@@ -41,7 +41,11 @@ def check_environment():
     if err_str or code or not output:
         raise LibmobiledeviceError(f'Get libmobiledevice info error: {err_str}')
 
-    libimobiledevice_info = json.loads(output)
+    try:
+        libimobiledevice_info = json.loads(output)
+    except Exception:
+        raise LibmobiledeviceError(f'Get unknown libmobiledevice info: {output}')
+
     if not isinstance(libimobiledevice_info, list) and not len(libimobiledevice_info):
         raise LibmobiledeviceError(f'Get unknown libmobiledevice info: {output}')
 
@@ -266,9 +270,11 @@ class Device:
             os.mkdir(PLIST_PATH)
         if not ideviceinstaller:
             raise IdeviceinstallerError('Command `ideviceinstaller` is not ready! Check your libimobiledevice')
-        _cmd = f'{ideviceinstaller} -u {self.device_id} -l -o xml > {plist_path}'
-        p = subprocess.Popen(_cmd, shell=True)
-        p.wait()
+        _cmd = f'{ideviceinstaller} -u {self.device_id} -l -o xml'
+
+        with open(plist_path, 'w') as output:
+            p = subprocess.Popen(_cmd, stdout=output, shell=True)
+            p.wait()
 
     def get_apps_list(self, device_id):
         self.get_device_plist(device_id)
