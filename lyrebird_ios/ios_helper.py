@@ -28,6 +28,7 @@ SYSTEM_BIN = Path('/usr/local/bin')
 
 ios_driver = wda_helper.Helper()
 
+
 def check_environment():
     """
     检查用户环境，第三方依赖是否正确安装。
@@ -72,7 +73,7 @@ def check_environment():
     lib_version = '1.2.0' if version.parse(lib_version) < version.parse('1.3.0') else '1.3.0'
 
     ideviceinstaller_keywords = 'ideviceinstaller'
-    ideviceinstaller = Path(__file__).parent/'bin'/lib_version/ideviceinstaller_keywords
+    ideviceinstaller = SYSTEM_BIN/ideviceinstaller_keywords
     err_msg = check_environment_item(ideviceinstaller_keywords, ideviceinstaller)
     if err_msg:
         env_err_msg.append(err_msg)
@@ -90,6 +91,7 @@ def check_environment():
     if env_err_msg:
         _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
 
+
 def check_environment_item(command, path, sub_command=''):
     if not Path(path).exists():
         return f'Command `{command}` not found, check your libimobiledevice'
@@ -97,6 +99,7 @@ def check_environment_item(command, path, sub_command=''):
     p = subprocess.run(f'{str(path)} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     err_str = p.stderr.decode()
     return f'Execute command `{command}` error: {err_str}' if err_str else ''
+
 
 def read_plist(plist_path):
     return plistlib.readPlist(plist_path)
