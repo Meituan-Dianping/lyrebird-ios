@@ -5,8 +5,6 @@ import codecs
 import plistlib
 import tempfile
 import subprocess
-from pathlib import Path
-from packaging import version
 import lyrebird
 from lyrebird.log import get_logger
 from . import wda_helper
@@ -71,7 +69,7 @@ def check_environment():
 
 
 def check_environment_item(command, sub_command=''):
-    p = subprocess.run(f'{str(command)} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.run(f'{command} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     err_str = p.stderr.decode()
     return f'Execute command `{command}` error: {err_str}' if err_str else ''
 
