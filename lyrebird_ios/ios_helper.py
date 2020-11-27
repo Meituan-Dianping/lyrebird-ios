@@ -36,20 +36,6 @@ def check_environment():
     """
     global ideviceinstaller, idevice_id, idevicescreenshot, ideviceinfo
 
-    # Check libmobiledevice, action when unavailable : block
-    p = subprocess.run('brew info --json libimobiledevice', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    code, output, err_str = p.returncode, p.stdout.decode(), p.stderr.decode()
-    if err_str or code or not output:
-        raise LibmobiledeviceError(f'Get libmobiledevice info error: {err_str}')
-
-    try:
-        libimobiledevice_info = json.loads(output)
-    except Exception:
-        raise LibmobiledeviceError(f'Get unknown libmobiledevice info: {output}')
-
-    if not isinstance(libimobiledevice_info, list) and not len(libimobiledevice_info):
-        raise LibmobiledeviceError(f'Get unknown libmobiledevice info: {output}')
-
     # Check idevice_id, action when unavailable : block
     idevice_id_keywords = 'idevice_id'
     idevice_id = SYSTEM_BIN/idevice_id_keywords
@@ -69,9 +55,6 @@ def check_environment():
     env_err_msg = []
 
     # Check ideviceinstaller, action when unavailable : warning
-    lib_version = libimobiledevice_info[0].get('versions', {}).get('stable')
-    lib_version = '1.2.0' if version.parse(lib_version) < version.parse('1.3.0') else '1.3.0'
-
     ideviceinstaller_keywords = 'ideviceinstaller'
     ideviceinstaller = SYSTEM_BIN/ideviceinstaller_keywords
     err_msg = check_environment_item(ideviceinstaller_keywords, ideviceinstaller)
