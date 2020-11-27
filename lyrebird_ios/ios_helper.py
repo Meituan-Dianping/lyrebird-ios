@@ -5,8 +5,6 @@ import codecs
 import plistlib
 import tempfile
 import subprocess
-from pathlib import Path
-from packaging import version
 import lyrebird
 from lyrebird.log import get_logger
 from . import wda_helper
@@ -24,7 +22,6 @@ storage = lyrebird.get_plugin_storage()
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 PLIST_PATH = os.path.join(storage, 'plist')
-SYSTEM_BIN = Path('/usr/local/bin')
 
 ios_driver = wda_helper.Helper()
 
@@ -37,17 +34,15 @@ def check_environment():
     global ideviceinstaller, idevice_id, idevicescreenshot, ideviceinfo
 
     # Check idevice_id, action when unavailable : block
-    idevice_id_keywords = 'idevice_id'
-    idevice_id = SYSTEM_BIN/idevice_id_keywords
-    err_msg = check_environment_item(idevice_id_keywords, idevice_id)
+    idevice_id = 'idevice_id'
+    err_msg = check_environment_item(idevice_id)
     if err_msg:
         idevice_id = None
         raise IdeviceidError(err_msg)
 
     # Check ideviceinfo, action when unavailable : block
-    ideviceinfo_keywords = 'ideviceinfo'
-    ideviceinfo = SYSTEM_BIN/ideviceinfo_keywords
-    err_msg = check_environment_item(ideviceinfo_keywords, ideviceinfo)
+    ideviceinfo = 'ideviceinfo'
+    err_msg = check_environment_item(ideviceinfo)
     if err_msg:
         ideviceinfo = None
         raise IdeviceinfoError(err_msg)
@@ -55,18 +50,16 @@ def check_environment():
     env_err_msg = []
 
     # Check ideviceinstaller, action when unavailable : warning
-    ideviceinstaller_keywords = 'ideviceinstaller'
-    ideviceinstaller = SYSTEM_BIN/ideviceinstaller_keywords
-    err_msg = check_environment_item(ideviceinstaller_keywords, ideviceinstaller)
+    ideviceinstaller = 'ideviceinstaller'
+    err_msg = check_environment_item(ideviceinstaller)
     if err_msg:
         env_err_msg.append(err_msg)
         ideviceinstaller = None
 
     # Check idevicescreenshot, action when unavailable : warning
-    idevicescreenshot_keywords = 'idevicescreenshot'
-    idevicescreenshot = SYSTEM_BIN/idevicescreenshot_keywords
+    idevicescreenshot = 'idevicescreenshot'
     temp_file = tempfile.NamedTemporaryFile().name
-    err_msg = check_environment_item(idevicescreenshot_keywords, idevicescreenshot, sub_command=temp_file)
+    err_msg = check_environment_item(idevicescreenshot, sub_command=temp_file)
     if err_msg:
         env_err_msg.append(err_msg)
         idevicescreenshot = None
@@ -75,11 +68,8 @@ def check_environment():
         _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
 
 
-def check_environment_item(command, path, sub_command=''):
-    if not Path(path).exists():
-        return f'Command `{command}` not found, check your libimobiledevice'
-
-    p = subprocess.run(f'{str(path)} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def check_environment_item(command, sub_command=''):
+    p = subprocess.run(f'{command} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     err_str = p.stderr.decode()
     return f'Execute command `{command}` error: {err_str}' if err_str else ''
 
