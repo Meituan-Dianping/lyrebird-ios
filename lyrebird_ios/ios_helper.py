@@ -28,26 +28,13 @@ SYSTEM_BIN = Path('/usr/local/bin')
 
 ios_driver = wda_helper.Helper()
 
+
 def check_environment():
     """
     检查用户环境，第三方依赖是否正确安装。
     :return:
     """
     global ideviceinstaller, idevice_id, idevicescreenshot, ideviceinfo
-
-    # Check libmobiledevice, action when unavailable : block
-    p = subprocess.run('brew info --json libimobiledevice', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    code, output, err_str = p.returncode, p.stdout.decode(), p.stderr.decode()
-    if err_str or code or not output:
-        raise LibmobiledeviceError(f'Get libmobiledevice info error: {err_str}')
-
-    try:
-        libimobiledevice_info = json.loads(output)
-    except Exception:
-        raise LibmobiledeviceError(f'Get unknown libmobiledevice info: {output}')
-
-    if not isinstance(libimobiledevice_info, list) and not len(libimobiledevice_info):
-        raise LibmobiledeviceError(f'Get unknown libmobiledevice info: {output}')
 
     # Check idevice_id, action when unavailable : block
     idevice_id_keywords = 'idevice_id'
@@ -68,11 +55,8 @@ def check_environment():
     env_err_msg = []
 
     # Check ideviceinstaller, action when unavailable : warning
-    lib_version = libimobiledevice_info[0].get('versions', {}).get('stable')
-    lib_version = '1.2.0' if version.parse(lib_version) < version.parse('1.3.0') else '1.3.0'
-
     ideviceinstaller_keywords = 'ideviceinstaller'
-    ideviceinstaller = Path(__file__).parent/'bin'/lib_version/ideviceinstaller_keywords
+    ideviceinstaller = SYSTEM_BIN/ideviceinstaller_keywords
     err_msg = check_environment_item(ideviceinstaller_keywords, ideviceinstaller)
     if err_msg:
         env_err_msg.append(err_msg)
@@ -90,6 +74,7 @@ def check_environment():
     if env_err_msg:
         _log.error('iOS Plugin environment warning:\n' + '.\n'.join(env_err_msg))
 
+
 def check_environment_item(command, path, sub_command=''):
     if not Path(path).exists():
         return f'Command `{command}` not found, check your libimobiledevice'
@@ -97,6 +82,7 @@ def check_environment_item(command, path, sub_command=''):
     p = subprocess.run(f'{str(path)} {sub_command}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     err_str = p.stderr.decode()
     return f'Execute command `{command}` error: {err_str}' if err_str else ''
+
 
 def read_plist(plist_path):
     return plistlib.readPlist(plist_path)
