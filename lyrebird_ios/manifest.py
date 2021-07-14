@@ -3,6 +3,7 @@ from . import apis
 
 manifest(
     id='ios',
+    icon='mdi-apple',
     name='iOS',
     api=[
         # get devices
