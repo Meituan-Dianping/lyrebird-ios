@@ -15,6 +15,7 @@ ideviceinstaller = None
 idevice_id = None
 idevicescreenshot = None
 ideviceinfo = None
+tidevice = 'tidevice'
 
 root = os.path.dirname(__file__)
 model_json = os.path.abspath(os.path.join(root, 'config/comparison_table_model.json'))
@@ -271,6 +272,9 @@ class Device:
         screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestamp}.png'))
         p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}',
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if p.returncode != 0:
+            p = subprocess.run(f'{tidevice} -u {self.device_id} screenshot {screen_shot_file}',
+                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result = {
             'returncode': p.returncode,
             'result': p,
