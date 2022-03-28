@@ -15,7 +15,6 @@ ideviceinstaller = None
 idevice_id = None
 idevicescreenshot = None
 ideviceinfo = None
-tidevice = 'tidevice'
 
 root = os.path.dirname(__file__)
 model_json = os.path.abspath(os.path.join(root, 'config/comparison_table_model.json'))
@@ -272,16 +271,28 @@ class Device:
         screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestamp}.png'))
         p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}',
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if p.returncode != 0:
-            p = subprocess.run(f'{tidevice} -u {self.device_id} screenshot {screen_shot_file}',
-                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        result = {
-            'returncode': p.returncode,
-            'result': p,
+        if p.returncode == 0:
+            return {
+                'returncode': p.returncode,
+                'stdout': p.stdout.decode(),
+                'screen_shot_file': screen_shot_file,
+                'timestamp': timestamp
+            }
+        import tidevice
+        img = tidevice.Device(self.device_id).screenshot()
+        if img:
+            img.save(screen_shot_file)
+            return_code = 0
+            stdout = 'Success'
+        else:
+            return_code = 1
+            stdout = 'Fail to get screenshot by tidevice'
+        return {
+            'returncode': return_code,
+            'stdout': stdout,
             'screen_shot_file': screen_shot_file,
             'timestamp': timestamp
         }
-        return result
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
