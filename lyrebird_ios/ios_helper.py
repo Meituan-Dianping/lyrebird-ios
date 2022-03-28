@@ -5,6 +5,7 @@ import codecs
 import plistlib
 import tempfile
 import subprocess
+import traceback
 import lyrebird
 from lyrebird.log import get_logger
 from . import wda_helper
@@ -279,14 +280,15 @@ class Device:
                 'timestamp': timestamp
             }
         import tidevice
-        img = tidevice.Device(self.device_id).screenshot()
-        if img:
+        try:
+            img = tidevice.Device(self.device_id).screenshot()
+        except AssertionError as e:
+            return_code = 1
+            stdout = f'Fail to get screenshot by tidevice.\n {str(e)}\n {traceback.format_exc()}'
+        else:
             img.save(screen_shot_file)
             return_code = 0
             stdout = 'Success'
-        else:
-            return_code = 1
-            stdout = 'Fail to get screenshot by tidevice'
         return {
             'returncode': return_code,
             'stdout': stdout,
