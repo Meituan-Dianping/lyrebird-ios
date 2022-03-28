@@ -64,7 +64,7 @@ def take_screen_shot(device_id):
     device = device_service.devices.get(device_id)
     img_info = device.take_screen_shot()
     if img_info['returncode'] != 0:
-        return make_fail_response(img_info['result'].stdout.decode())
+        return make_fail_response(img_info['stdout'])
     timestamp = img_info.get('timestamp')
     return make_ok_response(imgUrl=f'/plugins/ios/api/src/screenshot/{device_id}?time={timestamp}')
 
