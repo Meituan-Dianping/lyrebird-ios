@@ -1,5 +1,4 @@
 import os
-import socket
 import lyrebird
 from flask import request, jsonify, send_from_directory
 from lyrebird import application
