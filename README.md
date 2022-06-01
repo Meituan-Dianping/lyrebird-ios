@@ -45,7 +45,7 @@
    ```bash
    ideviceinfo
    idevicescreenshot
-   idevicesinstaller -l
+   ideviceinstaller -l
    ```
 
 ### 安装

@@ -29,7 +29,8 @@ setup(
     },
     install_requires=[
         'lyrebird',
-        'facebook-wda==0.8.1'
+        'facebook-wda==0.8.1',
+        'tidevice==0.6.12'
     ],
     extras_require={
         'dev': [

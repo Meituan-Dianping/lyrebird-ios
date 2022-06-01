@@ -5,6 +5,7 @@ import codecs
 import plistlib
 import tempfile
 import subprocess
+import traceback
 import lyrebird
 from lyrebird.log import get_logger
 from . import wda_helper
@@ -271,13 +272,29 @@ class Device:
         screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'{file_name}_{timestamp}.png'))
         p = subprocess.run(f'{idevicescreenshot} -u {self.device_id} {screen_shot_file}',
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        result = {
-            'returncode': p.returncode,
-            'result': p,
+        if p.returncode == 0:
+            return {
+                'returncode': p.returncode,
+                'stdout': p.stdout.decode(),
+                'screen_shot_file': screen_shot_file,
+                'timestamp': timestamp
+            }
+        import tidevice
+        try:
+            img = tidevice.Device(self.device_id).screenshot()
+        except AssertionError as e:
+            return_code = 1
+            stdout = f'Fail to get screenshot by tidevice.\n {str(e)}\n {traceback.format_exc()}'
+        else:
+            img.save(screen_shot_file)
+            return_code = 0
+            stdout = 'Success'
+        return {
+            'returncode': return_code,
+            'stdout': stdout,
             'screen_shot_file': screen_shot_file,
             'timestamp': timestamp
         }
-        return result
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
