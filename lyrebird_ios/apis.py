@@ -1,5 +1,4 @@
 import os
-import socket
 import lyrebird
 from flask import request, jsonify, send_from_directory
 from lyrebird import application
@@ -43,8 +42,9 @@ def app_list(device_id):
 
 def start_app(device_id, bundle_id):
     device = device_service.devices.get(device_id)
+    ip = application.config.get('ip')
     port = application.config.get('mock.port')
-    res = device.start_app(bundle_id, _get_ip(), port)
+    res = device.start_app(bundle_id, ip, port)
     if res:
         return make_fail_response(res)
     return make_ok_response()
@@ -103,14 +103,3 @@ def check_env():
         return make_ok_response()
     else:
         return make_fail_response(msg)
-
-
-def _get_ip():
-    """
-    Get ip address
-
-    :return: IP
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('bing.com', 80))
-    return s.getsockname()[0]
