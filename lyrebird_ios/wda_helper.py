@@ -15,7 +15,7 @@ class Helper:
         required:
         - bundle_id(string): app bundle id
         """
-        self.client = wda.Client()
+        self.client = wda.USBClient()
         self.session = self.client.session(
             bundle_id=self.bundle_id,
             arguments=self.arguments,
