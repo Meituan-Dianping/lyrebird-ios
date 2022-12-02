@@ -19,7 +19,7 @@
 
 - macOS
 
-- [Python >= 3.6](https://www.python.org/downloads/release/python-360/)
+- [Python >= 3.7](https://www.python.org/downloads/release/python-360/)
 
 - [libimobiledevice](https://github.com/libimobiledevice/libimobiledevice)
 
@@ -80,7 +80,7 @@ lyrebird
 
 - macOS
 
-- Python3.6 及以上
+- Python3.7 及以上
 
 - NodeJS
 
